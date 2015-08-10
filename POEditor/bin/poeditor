@@ -1,0 +1,61 @@
+#!/usr/bin/env ruby
+
+if RUBY_VERSION < '2.0.0'
+  abort 'error: POEditor requires Ruby 2 or higher.'
+end
+
+if $0 == __FILE__
+  $:.unshift File.expand_path('../lib', File.dirname(__FILE__))
+end
+
+require 'poeditor'
+require 'optparse'
+
+dir = Dir.pwd
+options = {
+    :apple_file => File.find_apple_file(dir),
+    :android_file => File.find_android_file(dir),
+    :localizable_strings => nil,
+    :strings_xml => nil
+}
+
+OptionParser.new do |opts|
+  opts.banner = 'Usage: poeditor [options]'
+  opts.on('-a PATH', '--apple PATH', %q(Specify Apple strings file path)) do |path|
+    options[:apple_file] = path
+  end
+  opts.on('-d PATH', '--android PATH', %q(Specify Android strings file path)) do |path|
+    options[:android_file] = path
+  end
+  opts.on('-z PATH', '--localizable PATH', %q(Specify iOS Localizable.strings file path)) do |path|
+    options[:localizable_strings] = path
+  end
+  opts.on('-x PATH', '--xml PATH', %q(Specify Android strings.xml file path)) do |path|
+    options[:strings_xml] = path
+  end
+  opts.on_tail('-h', '--help', %q(Show this message)) { puts opts; exit 1 }
+  opts.on_tail('-v', '--version', 'Show version') { puts POEditor::VERSION; exit }
+  opts.parse!
+end
+
+# Apple
+if options[:apple_file].nil?
+  Log::info('You need to specify an Apple strings file path using --apple option to generate Localizable.strings file (see --help for more info)')
+else
+  if options[:localizable_strings].nil?
+    Log::error('You need to specify an Apple Localizable.strings file path using --localizable option (see --help for more info)')
+  else
+    POEditor::Apple::Cleaner.new(options[:apple_file], options[:localizable_strings])
+  end
+end
+
+# Android
+if options[:android_file].nil?
+  Log::info('You need to specify an Android strings file path using --android option to generate strings.xml file (see --help for more info)')
+else
+  if options[:strings_xml].nil?
+    Log::error('You need to specify an Android strings.xml file path using --xml option (see --help for more info)')
+  else
+    POEditor::Android::Cleaner.new(options[:android_file], options[:strings_xml])
+  end
+end
