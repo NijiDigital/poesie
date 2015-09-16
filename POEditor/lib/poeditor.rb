@@ -77,7 +77,7 @@ module POEditor
           mark = last_prefix[0].upcase + last_prefix[1..-1].downcase
           out_lines += ['', '/'*80, "// MARK: #{mark}"]
         end
-        out_lines += [line]
+        out_lines += [line.gsub('\\\\n', '\\n')]
       end
       return out_lines.join("\n") + "\n"
     end
