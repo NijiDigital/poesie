@@ -59,13 +59,16 @@ Se connecter sur [POEditor](https://poeditor.com) avec le compte suivant identif
 > 
 > Si vous ajoutez un terme assez générique synonyme d'action comme **Appuyer**, nommez la clé `action_push` par exemple.
 
-* Suffixez par `_ios`, `_ios(+)` ou `_android` toute clé d’un terme qui contient un **format** ou qui est un **pluriel**.
+* Suffixez par `_ios`, `_ios(+)` ou `_android` toute clé d’un terme qui est un **pluriel**.
+* Pour les clés qui contiennent un **format**: utilisez `%s` (ou `%n$s` où `n` est un chiffre) pour les chaînes de caractère, et non `%@`. Sur iOS, le `%s` (resp. `%1$s`) sera converti en `%@` (resp. `%1$@`). Cela permet d'utiliser la même chaîne avec format pour Android et iOS.
+
+> Rappel: la syntaxe `%n$s` permet d'indiquer l'index du paramètre à utiliser. Cela permet ainsi d'inverser l'ordre des paramètres dans la traduction (`%1$s's %2$d phones` en anglais donnera "John's 3 phones" alors que `Les %2$d téléphones de %1$s` en français donnera "Les 3 téléphones de John"). S'il n'est pas précisé (juste `%s`), les paramètres sont pris dans l'ordre dans lequel ils sont passés. _(Il est cependant conseillé d'utiliser `%n$s` et d'indiquer la position même s'il se trouve que les paramètres qui seront passés lors de la traduction sont déjà dans l'ordre, pour être explicite)_
 
 **Exemples :**
 
 ```
 // iOS
-"credentials_message_confirm_ios" = "Vous allez recevoir un e-mail à l'adresse %@ vous invitant à définir un nouveau code secret.\nMerci de consulter vos e-mails.";
+"credentials_message_confirm_ios" = "Vous allez recevoir un e-mail à l'adresse %1$s vous invitant à définir un nouveau code secret.\nMerci de consulter vos e-mails.";
 "document_add_gallery_selected_text_%i_ios" = "%i sélectionnée";
 "document_add_gallery_selected_text_%i_ios(+)" = "%i sélectionnées »;
 
