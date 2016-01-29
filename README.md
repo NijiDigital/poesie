@@ -17,6 +17,7 @@ Plusieurs options de ligne de commande peuvent être utilisées lors de l'invoca
 ```
 ➜ ✗ poeditor -h
 Usage: poeditor [options]
+    -t, --token API_TOKEN            Specify your POEditor API token
     -p, --project PROJECT_ID    Specify your POEditor project identifier
     -l, --lang LANGUAGE         Specify your POEditor project language
     -i, --ios PATH              Specify iOS Localizable.strings file path
@@ -97,10 +98,14 @@ Se connecter sur [POEditor](https://poeditor.com) avec le compte suivant identif
 
 Exécuter le script Ruby `poeditor` qui **génère** les fichiers de strings dans le projet **Xcode** et **Android Studio**.
 
-**Exemple** :
+**Exemples** :
 
 ```
 ➜ ✗ poeditor -p 32644 -l fr -a /Users/KiKi/Documents/Dev/GitLab/LaPoste/Pass-Android/app/src/main/res/values/strings.xml
+```
+
+```
+➜ ✗ poeditor -t c47665dfb4c65882a0f1059540e2524a -p 45344 -l fr -i /Users/KiKi/Documents/Dev/GitLab/Monoprix/Monoprix-iOS/Resources/Localizable.strings
 ```
 
 > **NB:** Les identifiants de vos projets respectifs sont disponibles à l'adresse suivante [POEditor](https://poeditor.com/account/api).

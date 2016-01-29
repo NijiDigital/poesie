@@ -12,6 +12,7 @@ require 'optparse'
 require 'poeditor'
 
 options = {
+    :api_token => 'fc1881292605d21bc5531c6ffcf3e410',
     :project_id => nil,
     :lang => nil,
     :localizable_strings => nil,
@@ -20,6 +21,9 @@ options = {
 
 OptionParser.new do |opts|
   opts.banner = 'Usage: poeditor [options]'
+  opts.on('-t API_TOKEN', '--token API_TOKEN', %q(Specify your POEditor API token)) do |api_token|
+    options[:api_token] = api_token
+  end
   opts.on('-p PROJECT_ID', '--project PROJECT_ID', %q(Specify your POEditor project identifier)) do |project_id|
     options[:project_id] = project_id
   end
@@ -39,7 +43,7 @@ end
 
 # Main
 POEditor.exit_with_error('You need to specify your POEditor project identifier using --project option (see --help for more info)') if options[:project_id].nil?
-exporter = POEditor::Exporter.new(POEditor::API_TOKEN, options[:project_id])
+exporter = POEditor::Exporter.new(options[:api_token], options[:project_id])
 POEditor.exit_with_error('You need to specify your POEditor project language using --lang option (see --help for more info)') if options[:lang].nil?
 unless options[:localizable_strings].nil?
   Log::title('== iOS ==')

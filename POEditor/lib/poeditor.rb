@@ -5,7 +5,6 @@ require 'json'
 
 module POEditor
   VERSION = '0.1.0'
-  API_TOKEN = 'fc1881292605d21bc5531c6ffcf3e410'
 
   def self.exit_with_error(message)
     Log::error message
