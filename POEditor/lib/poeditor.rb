@@ -76,7 +76,8 @@ module POEditor
           mark = last_prefix[0].upcase + last_prefix[1..-1].downcase
           out_lines += ['', '/'*80, "// MARK: #{mark}"]
         end
-        out_lines += [line]
+        # Fix bug with '\n' exported escaped by POEditor + replace %s with %@ for iOS
+        out_lines += [line.gsub('\\\\n', '\\n').gsub(/%(\d\$)?s/,'%\1@')]
       end
       return out_lines.join("\n") + "\n"
     end
