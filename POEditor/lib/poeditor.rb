@@ -64,21 +64,33 @@ module POEditor
     # @param [String] strings_content   The content of the Localizable.strings file as exported by POEditor
     # @return [String]                  The reformatted content, sorted, grouped with 'MARK's and annotated
     def self.process_content(strings_content)
-      lines = strings_content.split("\n").reject do |line|
-        line =~ %r(/\*.*\*/) || line =~ %r(^$) || line =~ %r(".*_android") # Remove comments, empty lines, and android-specific strings
-      end.sort
-      last_prefix = ''
+      json = nil
+      IO.popen('plutil -convert json -o - -', mode='r+') do |io|
+        io.write strings_content
+        io.close_write
+        json = JSON.parse(io.read)
+      end
+
+
       out_lines = ['/'+'*'*79, ' * Exported from POEditor - https://poeditor.com', " * #{Time.now}", ' '+'*'*78+'*'+'/', '']
-      lines.each do |line|
-        prefix = %r("([^_]*)_.*").match(line)
+      last_prefix = ''
+      json.keys.sort.each do |key|
+        prefix = %r(([^_]*)_.*).match(key)
         if prefix && prefix[1] != last_prefix
           last_prefix = prefix[1]
           mark = last_prefix[0].upcase + last_prefix[1..-1].downcase
           out_lines += ['', '/'*80, "// MARK: #{mark}"]
         end
-        # Fix bug with '\n' exported escaped by POEditor + replace %s with %@ for iOS
-        out_lines += [line.gsub('\\\\n', '\\n').gsub(/%(\d\$)?s/,'%\1@')]
+        value = json[key]
+        # Remove android-specific strings
+        continue if value =~ %r(".*_android")
+        # Fix bug with '\n' exported escaped by POEditor + escape some chars
+        value = value.gsub("\n", '\\n').gsub('"', '\\"')
+        # replace %s with %@ for iOS
+        value = value.gsub(/%(\d+\$)?s/,'%\1@')
+        out_lines += [%Q{"#{key}" = "#{value}";}]
       end
+
       return out_lines.join("\n") + "\n"
     end
   end
