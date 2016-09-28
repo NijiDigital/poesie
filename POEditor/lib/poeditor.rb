@@ -70,9 +70,11 @@ module POEditor
       out_lines = ['/'+'*'*79, ' * Exported from POEditor - https://poeditor.com', " * #{Time.now}", ' '+'*'*78+'*'+'/', '']
       last_prefix = ''
       terms.each do |term|
-        (key, value, comment) = [term['term'], term['definition'], term['comment']]
+        (key, value, comment, context) = ['term', 'definition', 'comment', 'context'].map { |k| term[k] }
         # Remove android-specific strings
-        continue if key =~ %r(".*_android")
+        next if key =~ %r(".*_android")
+        # Skip ugly cases if POEditor is buggy for some entries
+        next if key.nil? || key.empty? || value.nil?
         # Generate MARK from prefixes
         prefix = %r(([^_]*)_.*).match(key)
         if prefix && prefix[1] != last_prefix
@@ -81,11 +83,12 @@ module POEditor
           out_lines += ['', '/'*80, "// MARK: #{mark}"]
         end
         # Escape some chars
-        value = value.gsub("\u2028", '').gsub("\n", '\\n').gsub('"', '\\"')
+        value = value.gsub("\u2028", '').gsub("\n", '\\n').gsub('\\', '\\\\').gsub('"', '\\"')
         # replace %s with %@ for iOS
         value = value.gsub(/%(\d+\$)?s/,'%\1@')
-        comment_tail = '' # comment_tail = comment.empty? ? '' : " // #{comment.gsub("\n", '\\n')}"
-        out_lines += [%Q{"#{key}" = "#{value}";#{comment_tail}}]
+        comment_tail = '' # comment_tail = comment.empty? ? '' : %Q( // #{comment.gsub("\n", '\n')})
+        out_lines << %Q(// CONTEXT: #{context.gsub("\n",'\n')}) unless context.empty?
+        out_lines << %Q("#{key}" = "#{value}";#{comment_tail})
       end
 
       return out_lines.join("\n") + "\n"
