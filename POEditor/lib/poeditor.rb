@@ -67,7 +67,7 @@ module POEditor
       json = JSON.parse(json_string)
       terms = json.sort { |item1, item2| item1['term'] <=> item2['term'] }
 
-      out_lines = ['/'+'*'*79, ' * Exported from POEditor - https://poeditor.com', " * #{Time.now}", ' '+'*'*78+'*'+'/', '']
+      out_lines = ['/'+'*'*79, ' * Exported from POEditor - https://poeditor.com', " * #{Time.now}", ' '+'*'*79+'/', '']
       last_prefix = ''
       terms.each do |term|
         (key, value, comment, context) = ['term', 'definition', 'comment', 'context'].map { |k| term[k] }
@@ -85,13 +85,11 @@ module POEditor
         # Escape some chars
         value = value
           .gsub("\u2028", '')         # Sometimes inserted by the POEditor exporter
-          .gsub("\n", "\\n") # Replace actual CRLF with '\n'
-          .gsub('"', '\\"') # Escape quotes
-        # replace %s with %@ for iOS
-        value = value.gsub(/%(\d+\$)?s/,'%\1@')
-        comment_tail = '' # comment_tail = comment.empty? ? '' : %Q( // #{comment.gsub("\n", '\n')})
+          .gsub("\n", "\\n")          # Replace actual CRLF with '\n'
+          .gsub('"', '\\"')           # Escape quotes
+          .gsub(/%(\d+\$)?s/,'%\1@')  # replace %s with %@ for iOS
         out_lines << %Q(// CONTEXT: #{context.gsub("\n",'\n')}) unless context.empty?
-        out_lines << %Q("#{key}" = "#{value}";#{comment_tail})
+        out_lines << %Q("#{key}" = "#{value}";)
       end
 
       return out_lines.join("\n") + "\n"
