@@ -58,37 +58,34 @@ module POEditor
 
   module AppleFormatter
     def self.format
-      'apple_strings'
+      'json'
     end
 
     # @param [String] strings_content   The content of the Localizable.strings file as exported by POEditor
     # @return [String]                  The reformatted content, sorted, grouped with 'MARK's and annotated
-    def self.process_content(strings_content)
-      json = nil
-      IO.popen('plutil -convert json -o - -', mode='r+') do |io|
-        io.write strings_content
-        io.close_write
-        json = JSON.parse(io.read)
-      end
-
+    def self.process_content(json_string)
+      json = JSON.parse(json_string)
+      terms = json.sort { |item1, item2| item1['term'] <=> item2['term'] }
 
       out_lines = ['/'+'*'*79, ' * Exported from POEditor - https://poeditor.com', " * #{Time.now}", ' '+'*'*78+'*'+'/', '']
       last_prefix = ''
-      json.keys.sort.each do |key|
+      terms.each do |term|
+        (key, value, comment) = [term['term'], term['definition'], term['comment']]
+        # Remove android-specific strings
+        continue if key =~ %r(".*_android")
+        # Generate MARK from prefixes
         prefix = %r(([^_]*)_.*).match(key)
         if prefix && prefix[1] != last_prefix
           last_prefix = prefix[1]
           mark = last_prefix[0].upcase + last_prefix[1..-1].downcase
           out_lines += ['', '/'*80, "// MARK: #{mark}"]
         end
-        value = json[key]
-        # Remove android-specific strings
-        continue if value =~ %r(".*_android")
-        # Fix bug with '\n' exported escaped by POEditor + escape some chars
-        value = value.gsub("\n", '\\n').gsub('"', '\\"')
+        # Escape some chars
+        value = value.gsub("\u2028", '').gsub("\n", '\\n').gsub('"', '\\"')
         # replace %s with %@ for iOS
         value = value.gsub(/%(\d+\$)?s/,'%\1@')
-        out_lines += [%Q{"#{key}" = "#{value}";}]
+        comment_tail = '' # comment_tail = comment.empty? ? '' : " // #{comment.gsub("\n", '\\n')}"
+        out_lines += [%Q{"#{key}" = "#{value}";#{comment_tail}}]
       end
 
       return out_lines.join("\n") + "\n"
