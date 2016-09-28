@@ -83,7 +83,10 @@ module POEditor
           out_lines += ['', '/'*80, "// MARK: #{mark}"]
         end
         # Escape some chars
-        value = value.gsub("\u2028", '').gsub("\n", '\\n').gsub('\\', '\\\\').gsub('"', '\\"')
+        value = value
+          .gsub("\u2028", '')         # Sometimes inserted by the POEditor exporter
+          .gsub("\n", "\\n") # Replace actual CRLF with '\n'
+          .gsub('"', '\\"') # Escape quotes
         # replace %s with %@ for iOS
         value = value.gsub(/%(\d+\$)?s/,'%\1@')
         comment_tail = '' # comment_tail = comment.empty? ? '' : %Q( // #{comment.gsub("\n", '\n')})
