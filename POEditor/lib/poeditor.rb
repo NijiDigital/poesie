@@ -4,7 +4,7 @@ require 'net/http'
 require 'json'
 
 module POEditor
-  VERSION = '0.1.0'
+  VERSION = '0.2.2'
 
   def self.exit_with_error(message)
     Log::error message
@@ -58,27 +58,40 @@ module POEditor
 
   module AppleFormatter
     def self.format
-      'apple_strings'
+      'json'
     end
 
     # @param [String] strings_content   The content of the Localizable.strings file as exported by POEditor
     # @return [String]                  The reformatted content, sorted, grouped with 'MARK's and annotated
-    def self.process_content(strings_content)
-      lines = strings_content.split("\n").reject do |line|
-        line =~ %r(/\*.*\*/) || line =~ %r(^$) || line =~ %r(".*_android") # Remove comments, empty lines, and android-specific strings
-      end.sort
+    def self.process_content(json_string)
+      json = JSON.parse(json_string)
+      terms = json.sort { |item1, item2| item1['term'] <=> item2['term'] }
+
+      out_lines = ['/'+'*'*79, ' * Exported from POEditor - https://poeditor.com', " * #{Time.now}", ' '+'*'*79+'/', '']
       last_prefix = ''
-      out_lines = ['/'+'*'*79, ' * Exported from POEditor - https://poeditor.com', " * #{Time.now}", ' '+'*'*78+'*'+'/', '']
-      lines.each do |line|
-        prefix = %r("([^_]*)_.*").match(line)
+      terms.each do |term|
+        (key, value, comment, context) = ['term', 'definition', 'comment', 'context'].map { |k| term[k] }
+        # Remove android-specific strings
+        next if key =~ %r(".*_android")
+        # Skip ugly cases if POEditor is buggy for some entries
+        next if key.nil? || key.empty? || value.nil?
+        # Generate MARK from prefixes
+        prefix = %r(([^_]*)_.*).match(key)
         if prefix && prefix[1] != last_prefix
           last_prefix = prefix[1]
           mark = last_prefix[0].upcase + last_prefix[1..-1].downcase
           out_lines += ['', '/'*80, "// MARK: #{mark}"]
         end
-        # Fix bug with '\n' exported escaped by POEditor + replace %s with %@ for iOS
-        out_lines += [line.gsub('\\\\n', '\\n').gsub(/%(\d\$)?s/,'%\1@')]
+        # Escape some chars
+        value = value
+          .gsub("\u2028", '')         # Sometimes inserted by the POEditor exporter
+          .gsub("\n", "\\n")          # Replace actual CRLF with '\n'
+          .gsub('"', '\\"')           # Escape quotes
+          .gsub(/%(\d+\$)?s/,'%\1@')  # replace %s with %@ for iOS
+        out_lines << %Q(// CONTEXT: #{context.gsub("\n",'\n')}) unless context.empty?
+        out_lines << %Q("#{key}" = "#{value}";)
       end
+
       return out_lines.join("\n") + "\n"
     end
   end
