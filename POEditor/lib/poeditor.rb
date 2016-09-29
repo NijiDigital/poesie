@@ -4,7 +4,7 @@ require 'net/http'
 require 'json'
 
 module POEditor
-  VERSION = '0.1.0'
+  VERSION = '0.2.2'
 
   def self.exit_with_error(message)
     Log::error message
