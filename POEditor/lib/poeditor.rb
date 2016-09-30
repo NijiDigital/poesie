@@ -2,6 +2,7 @@ require File.expand_path('utils/log', File.dirname(__FILE__))
 
 require 'net/http'
 require 'json'
+require 'builder'
 
 module POEditor
   VERSION = '0.2.2'
@@ -19,13 +20,12 @@ module POEditor
       @project_id = project_id
     end
 
-    # @param [String] format          The format to export to, like 'apple_strings' or 'android_strings'
     # @return [Hash<String,String>]   The list of languages to export and associated files to save the result to
-    def run(format, langs)
+    def run(langs)
       langs.each do |lang, file|
         Log::info("Language: #{lang}")
         Log::info(' - Generating export...')
-        uri = generate_export_uri(format, lang)
+        uri = generate_export_uri(lang)
         Log::info(' - Downloading exported file...')
         content = Net::HTTP.get(URI(uri))
         if block_given?
@@ -39,12 +39,11 @@ module POEditor
 
     private
 
-    # @param [String] format   The format to export to, like 'apple_strings' or 'android_strings'
     # @param [String] lang     Language code, like 'fr', 'en', etc
     # @return [String]         URL of the exported file ready to be downloaded
-    def generate_export_uri(format, lang)
+    def generate_export_uri(lang)
       uri = URI('https://poeditor.com/api/')
-      res = Net::HTTP.post_form(uri, 'api_token' => @api_token, 'action' => 'export', 'id' => @project_id, 'type' => format, 'language' => lang)
+      res = Net::HTTP.post_form(uri, 'api_token' => @api_token, 'action' => 'export', 'id' => @project_id, 'type' => 'json', 'language' => lang)
       json = JSON.parse(res.body)
       if json['response']['status'] != 'success'
         r = json['response']
@@ -57,9 +56,6 @@ module POEditor
   end
 
   module AppleFormatter
-    def self.format
-      'json'
-    end
 
     # @param [String] strings_content   The content of the Localizable.strings file as exported by POEditor
     # @return [String]                  The reformatted content, sorted, grouped with 'MARK's and annotated
@@ -84,11 +80,11 @@ module POEditor
         end
         # Escape some chars
         value = value
-          .gsub("\u2028", '')         # Sometimes inserted by the POEditor exporter
-          .gsub("\n", "\\n")          # Replace actual CRLF with '\n'
-          .gsub('"', '\\"')           # Escape quotes
-          .gsub(/%(\d+\$)?s/,'%\1@')  # replace %s with %@ for iOS
-        out_lines << %Q(// CONTEXT: #{context.gsub("\n",'\n')}) unless context.empty?
+                    .gsub("\u2028", '') # Sometimes inserted by the POEditor exporter
+                    .gsub("\n", "\\n") # Replace actual CRLF with '\n'
+                    .gsub('"', '\\"') # Escape quotes
+                    .gsub(/%(\d+\$)?s/, '%\1@') # replace %s with %@ for iOS
+        out_lines << %Q(// CONTEXT: #{context.gsub("\n", '\n')}) unless context.empty?
         out_lines << %Q("#{key}" = "#{value}";)
       end
 
@@ -97,61 +93,37 @@ module POEditor
   end
 
   module AndroidFormatter
-    ANDROID_MATCHER = /(?:^|\s*)<string\s*name="(.*)">\s*"(.*)"\s*<\/string>(?:$|\s*)/
-    ANDROID_MATCHER_PLURALS_START = /(?:^|\s*)<plurals\s*name="(.*)">(?:$|\s*)/
-    ANDROID_MATCHER_ITEM = /(?:^|\s*)<item\s*quantity="(.*)">\s*(.*)\s*<\/item>(?:$|\s*)/
-    ANDROID_MATCHER_PLURALS_END = /(?:^|\s*)<\/plurals>(?:$|\s*)/
-
-    def self.format
-      'android_strings'
-    end
-
-    def self.strings(strings_content)
-      suffixes = %w(ios ios(+))
-      strings = Hash.new
-      strings_content.split("\n").each do |line|
-        if line.match(ANDROID_MATCHER)
-          key = $1.to_sym
-          value = $2
-          strings[key] = value unless key.to_s.end_with?(*suffixes)
-        end
-      end
-      strings
-    end
-
-    def self.plurals(strings_content)
-      plurals = String.new
-      strings_content.split("\n").each do |line|
-        case line
-          when ANDROID_MATCHER_PLURALS_START
-            plurals << "    #{line}\n"
-          when ANDROID_MATCHER_ITEM
-            plurals << "        #{line}\n"
-          when ANDROID_MATCHER_PLURALS_END
-            plurals << "    #{line}\n"
-          else
-            ''
-        end
-      end
-      plurals
-    end
 
     # @param [String] strings_content   The content of the strings.xml file as exported by POEditor
     # @return [String]                  The reformatted content
-    def self.process_content(strings_content)
-      strings = strings(strings_content)
-      content = String.new
-      content << "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-      content << "<!-- Exported from POEditor\n"
-      content << "     #{Time.now}\n"
-      content << "     see https://poeditor.com -->\n"
-      content << "<resources>\n"
-      strings.sort.each { |key, value|
-        content << "    <string name=\"#{key}\">\"#{value}\"</string>\n"
+    def self.process_content(json_string)
+      json = JSON.parse(json_string)
+      terms = json.sort { |item1, item2| item1['term'] <=> item2['term'] }
+      xml_builder = Builder::XmlMarkup.new(:indent => 4)
+      xml_builder.instruct!
+      xml_builder.comment!("Exported from POEditor\n    #{Time.now}\n    see https://poeditor.com")
+      xml_builder.resources {
+          |resources|
+        terms.each do |term|
+          (key, value, plurals, comment, context) = ['term', 'definition', 'term_plural', 'comment', 'context'].map { |k| term[k] }
+          # Skip ugly cases if POEditor is buggy for some entries
+          next if key.nil? || key.empty? || value.nil?
+          next if key =~ /_ios/
+          xml_builder.comment!(context) unless context.empty?
+          if plurals.empty?
+            value = value.gsub('"', '\\"')
+            resources.string("\"#{value}\"", :name => key)
+          else
+            resources.plurals(:name => plurals) {
+                |plural|
+              value.each do |plural_quantity, plural_value|
+                plural_value = plural_value.gsub('"', '\\"')
+                plural.item("\"#{plural_value}\"", :quantity => plural_quantity)
+              end
+            }
+          end
+        end
       }
-      content << plurals(strings_content)
-      content << "</resources>\n"
     end
   end
-
 end
