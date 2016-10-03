@@ -27,13 +27,15 @@ module POEditor
         Log::info(' - Generating export...')
         uri = generate_export_uri(lang)
         Log::info(' - Downloading exported file...')
-        content = Net::HTTP.get(URI(uri))
+        json_string = Net::HTTP.get(URI(uri))
+        json = JSON.parse(json_string)
+        terms = json.sort { |item1, item2| item1['term'] <=> item2['term'] }
         if block_given?
           Log::info(' - Processing generated strings...')
-          content = yield content
+          content = yield terms
+          Log::info(" - Save to file: #{file}")
+          File.write(file, content)
         end
-        Log::info(" - Save to file: #{file}")
-        File.write(file, content)
       end
     end
 
@@ -57,12 +59,9 @@ module POEditor
 
   module AppleFormatter
 
-    # @param [String] strings_content   The content of the Localizable.strings file as exported by POEditor
+    # @param [Hash] terms   The json parsed terms exported by POEditor and sorted alphabetically
     # @return [String]                  The reformatted content, sorted, grouped with 'MARK's and annotated
-    def self.process_content(json_string)
-      json = JSON.parse(json_string)
-      terms = json.sort { |item1, item2| item1['term'] <=> item2['term'] }
-
+    def self.process_content(terms)
       out_lines = ['/'+'*'*79, ' * Exported from POEditor - https://poeditor.com', " * #{Time.now}", ' '+'*'*79+'/', '']
       last_prefix = ''
       terms.each do |term|
@@ -94,11 +93,9 @@ module POEditor
 
   module AndroidFormatter
 
-    # @param [String] strings_content   The content of the strings.xml file as exported by POEditor
+    # @param [Hash] terms   The json parsed terms exported by POEditor and sorted alphabetically
     # @return [String]                  The reformatted content
-    def self.process_content(json_string)
-      json = JSON.parse(json_string)
-      terms = json.sort { |item1, item2| item1['term'] <=> item2['term'] }
+    def self.process_content(terms)
       xml_builder = Builder::XmlMarkup.new(:indent => 4)
       xml_builder.instruct!
       xml_builder.comment!("Exported from POEditor\n    #{Time.now}\n    see https://poeditor.com")
