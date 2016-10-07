@@ -5,7 +5,7 @@ require 'json'
 require 'builder'
 
 module POEditor
-  VERSION = '0.2.2'
+  VERSION = '0.3.0'
 
   def self.exit_with_error(message)
     Log::error message
