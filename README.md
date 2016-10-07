@@ -81,18 +81,7 @@ Se connecter sur [POEditor](https://poeditor.com) avec le compte suivant identif
     <item quantity="other">"Confirmez-vous la restauration de ces %d éléments ?"</item>
 </plurals>
 ```
-
-> **NB:** Concernant les traductions, depuis `POEditor`, bien insérer les retours à la ligne avec `\n` et non avec la touche Entrée de votre clavier.
-> 
 > **NB:** Il n'est pas nécessaire d'échapper sur Android les caractères spéciaux type `'`.
-
-**DO**
-
-![IMAGE](doc/ressources/good.png)
-
-**DON'T**
-
-![IMAGE](doc/ressources/bad.png)
 
 ### 4) Exécution du script
 

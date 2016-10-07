@@ -48,10 +48,10 @@ POEditor.exit_with_error('You need to specify your POEditor project language usi
 unless options[:localizable_strings].nil?
   Log::title('== iOS ==')
   langs = {options[:lang] => options[:localizable_strings]}
-  exporter.run(POEditor::AppleFormatter::format, langs) { |s| POEditor::AppleFormatter::process_content(s) }
+  exporter.run(langs) { |s| POEditor::AppleFormatter::process_content(s) }
 end
 unless options[:strings_xml].nil?
   Log::title('== Android ==')
   langs = {options[:lang] => options[:strings_xml]}
-  exporter.run(POEditor::AndroidFormatter::format, langs) { |s| POEditor::AndroidFormatter::process_content(s) }
+  exporter.run(langs) { |s| POEditor::AndroidFormatter::process_content(s) }
 end
