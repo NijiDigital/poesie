@@ -12,4 +12,8 @@ module Log
     puts "\e[1;32m√ #{str}\e[0m"
   end
 
+  def self.subtitle(str)
+    puts "\e[1;33m√ #{str}\e[0m"
+  end
+
 end
