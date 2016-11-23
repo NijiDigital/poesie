@@ -129,26 +129,24 @@ module POEditor
         (key, value, comment, context) = ['term', 'definition', 'comment', 'context'].map { |k| term[k] }
 
         # Skip ugly cases if POEditor is buggy for some entries
-        if key.nil? || key.empty? || value.nil?; filteredKeys["nil"] += 1; next; end
+        if key.nil? || key.empty? || value.nil? || context.nil?; filteredKeys["nil"] += 1; next; end
         # Remove android-specific strings
         if key =~ /_android$/; filteredKeys["android"] += 1; next; end
-        # Filter
+        # Filter by --Filter options
         if (filter && !(key.include? filter)); filteredKeys["filter"] += 1; next; end
 
-#  case ErrorKey1 = "invalid_parameter.name"
         # Generate MARK from prefixes
         prefix = %r(([^_]*)_.*).match(key)
         if prefix && prefix[1] != last_prefix
           last_prefix = prefix[1]
           mark = last_prefix[0].upcase + last_prefix[1..-1].downcase
-          # out_lines += ['', '/'*80, "// MARK: #{mark}"]
+          out_lines += ['', '/'*80, "// MARK: #{mark}"]
         end
         # Escape some chars
-        # puts(context)
         context = context
                     .gsub("\u2028", '') # Sometimes inserted by the POEditor exporter
-                    .gsub("\\", "\\\\\\") # Replace actual CRLF with '\n'
-                    .gsub('\\\\"', '\\"') # Replace actual CRLF with '\n'
+                    .gsub("\\", "\\\\\\") # Replace actual \ with \\
+                    .gsub('\\\\"', '\\"') # Replace actual \\" with \"
                     .gsub(/%(\d+\$)?s/, '%\1@') # replace %s with %@ for iOS
         out_lines << %Q(    case #{key.camel_case} = "#{context}";)
       end
@@ -163,10 +161,10 @@ module POEditor
         (key, value, comment, context) = ['term', 'definition', 'comment', 'context'].map { |k| term[k] }
 
         # Skip ugly cases if POEditor is buggy for some entries
-        if key.nil? || key.empty? || value.nil?; filteredKeys["nil"] += 1; next; end
+        if key.nil? || key.empty? || value.nil? || context.nil?; filteredKeys["nil"] += 1; next; end
         # Remove android-specific strings
         if key =~ /_android$/; filteredKeys["android"] += 1; next; end
-        # Filter
+        # Filter by --Filter options
         if (filter && !(key.include? filter)); filteredKeys["filter"] += 1; next; end
 
         # Generate MARK from prefixes
@@ -185,15 +183,13 @@ module POEditor
 
         out_lines += ["    case .#{key.camel_case}:"]
         out_lines += ["      return \"#{value}\""]
-
-        # out_lines << %Q(// CONTEXT: #{context.gsub("\n", '\n')}) unless context.empty?
-        # out_lines << %Q("#{key}" = "#{value}";)
       end
 
       out_lines += ['    }']
       out_lines += ['  }']
       out_lines += ['}']
 
+      Log::error("Filtered by:\n Filter: #{filteredKeys["filter"]/2}, Android: #{filteredKeys["android"]/2}, Nil: #{filteredKeys["nil"]/2}")
       return out_lines.join("\n") + "\n"
 
     end
@@ -214,7 +210,7 @@ module POEditor
           (key, value, plurals, comment, context) = ['term', 'definition', 'term_plural', 'comment', 'context'].map { |k| term[k] }
           # Skip ugly cases if POEditor is buggy for some entries
           next if key.nil? || key.empty? || value.nil?
-          next if key =~ /_ios/
+          next if key =~ /_ios$/
           xml_builder.comment!(context) unless context.empty?
           if plurals.empty?
             value = value.gsub('"', '\\"')
