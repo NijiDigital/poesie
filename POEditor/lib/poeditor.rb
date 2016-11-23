@@ -1,4 +1,5 @@
 require File.expand_path('utils/log', File.dirname(__FILE__))
+require File.expand_path('utils/string', File.dirname(__FILE__))
 
 require 'net/http'
 require 'json'
@@ -61,27 +62,31 @@ module POEditor
     end
 
     def self.write_context(terms, file, filter)
-      error_content = self.process_context(terms)
+      error_content = self.process_context(terms, file, filter)
       Log::info(" - Save to file: #{file}")
-      File.write(file, content)
+      File.write(file, error_content)
     end
 
+    ##
+    ## Content
+    ##
     # @param [Hash] terms   The json parsed terms exported by POEditor and sorted alphabetically
     # @return [String]                  The reformatted content, sorted, grouped with 'MARK's and annotated
     def self.process_content(terms, filter)
       out_lines = ['/'+'*'*79, ' * Exported from POEditor - https://poeditor.com', " * #{Time.now}", ' '+'*'*79+'/', '']
       last_prefix = ''
-
       filteredKeys = {"filter" => 0, "android" => 0, "nil" => 0}
 
       terms.each do |term|
         (key, value, comment, context) = ['term', 'definition', 'comment', 'context'].map { |k| term[k] }
-        # Remove android-specific strings
-        if key =~ /_android$/; filteredKeys["android"] += 1; next; end
+
         # Skip ugly cases if POEditor is buggy for some entries
         if key.nil? || key.empty? || value.nil?; filteredKeys["nil"] += 1; next; end
+        # Remove android-specific strings
+        if key =~ /_android$/; filteredKeys["android"] += 1; next; end
         # Filter
-        if key.include? filter; filteredKeys["filter"] += 1; next; end
+        if (filter && (key.include? filter)); filteredKeys["filter"] += 1; next; end
+
         # Generate MARK from prefixes
         prefix = %r(([^_]*)_.*).match(key)
         if prefix && prefix[1] != last_prefix
@@ -108,43 +113,62 @@ module POEditor
       return out_lines.join("\n") + "\n"
     end
 
+    ##
+    ## Context
+    ##
     # @param [Hash] terms   The json parsed terms exported by POEditor and sorted alphabetically
     # @return [String]                  The reformatted content, sorted, grouped with 'MARK's and annotated
-    def self.process_context(terms)
+    def self.process_context(terms, file, filter)
       out_lines = ['/'+'*'*79, ' * Exported from POEditor - https://poeditor.com', " * #{Time.now}", ' '+'*'*78+'*'+'/', '']
       out_lines += ["enum #{File.basename(file, '.swift')}: String, ErrorType {\n"]
       last_prefix = ''
-      #switch case
+      filteredKeys = {"filter" => 0, "android" => 0, "nil" => 0}
+
+      #switch on key / context
       terms.each do |term|
         (key, value, comment, context) = ['term', 'definition', 'comment', 'context'].map { |k| term[k] }
-        # Remove android-specific strings
-        next if key =~ %r(".*_android")
+
         # Skip ugly cases if POEditor is buggy for some entries
-        next if key.nil? || key.empty? || value.nil?
+        if key.nil? || key.empty? || value.nil?; filteredKeys["nil"] += 1; next; end
+        # Remove android-specific strings
+        if key =~ /_android$/; filteredKeys["android"] += 1; next; end
+        # Filter
+        if (filter && !(key.include? filter)); filteredKeys["filter"] += 1; next; end
+
+#  case ErrorKey1 = "invalid_parameter.name"
         # Generate MARK from prefixes
         prefix = %r(([^_]*)_.*).match(key)
         if prefix && prefix[1] != last_prefix
           last_prefix = prefix[1]
           mark = last_prefix[0].upcase + last_prefix[1..-1].downcase
-          out_lines += ['', '/'*80, "// MARK: #{mark}"]
+          # out_lines += ['', '/'*80, "// MARK: #{mark}"]
         end
         # Escape some chars
-        value = value
+        # puts(context)
+        context = context
                     .gsub("\u2028", '') # Sometimes inserted by the POEditor exporter
-                    .gsub("\n", "\\n") # Replace actual CRLF with '\n'
-                    .gsub('"', '\\"') # Escape quotes
+                    .gsub("\\", "\\\\\\") # Replace actual CRLF with '\n'
+                    .gsub('\\\\"', '\\"') # Replace actual CRLF with '\n'
                     .gsub(/%(\d+\$)?s/, '%\1@') # replace %s with %@ for iOS
-        out_lines << %Q(// CONTEXT: #{context.gsub("\n", '\n')}) unless context.empty?
-        out_lines << %Q("#{key}" = "#{value}";)
+        out_lines << %Q(    case #{key.camel_case} = "#{context}";)
       end
 
-      #localized string
+      out_lines += ["}\n"]
+      out_lines += ["extension #{File.basename(file, '.swift')} {\n"]
+      out_lines += ['  var localizedMessage: String {']
+      out_lines += ['    switch self {']
+
+      #switch on key / value
       terms.each do |term|
         (key, value, comment, context) = ['term', 'definition', 'comment', 'context'].map { |k| term[k] }
-        # Remove android-specific strings
-        next if key =~ %r(".*_android")
+
         # Skip ugly cases if POEditor is buggy for some entries
-        next if key.nil? || key.empty? || value.nil?
+        if key.nil? || key.empty? || value.nil?; filteredKeys["nil"] += 1; next; end
+        # Remove android-specific strings
+        if key =~ /_android$/; filteredKeys["android"] += 1; next; end
+        # Filter
+        if (filter && !(key.include? filter)); filteredKeys["filter"] += 1; next; end
+
         # Generate MARK from prefixes
         prefix = %r(([^_]*)_.*).match(key)
         if prefix && prefix[1] != last_prefix
@@ -158,9 +182,17 @@ module POEditor
                     .gsub("\n", "\\n") # Replace actual CRLF with '\n'
                     .gsub('"', '\\"') # Escape quotes
                     .gsub(/%(\d+\$)?s/, '%\1@') # replace %s with %@ for iOS
-        out_lines << %Q(// CONTEXT: #{context.gsub("\n", '\n')}) unless context.empty?
-        out_lines << %Q("#{key}" = "#{value}";)
+
+        out_lines += ["    case .#{key.camel_case}:"]
+        out_lines += ["      return \"#{value}\""]
+
+        # out_lines << %Q(// CONTEXT: #{context.gsub("\n", '\n')}) unless context.empty?
+        # out_lines << %Q("#{key}" = "#{value}";)
       end
+
+      out_lines += ['    }']
+      out_lines += ['  }']
+      out_lines += ['}']
 
       return out_lines.join("\n") + "\n"
 
