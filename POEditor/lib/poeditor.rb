@@ -90,6 +90,54 @@ module POEditor
 
     end
 
+    def self.write_stringsdict(terms, file, filter)
+      out_lines = %Q(<plist version="1.0">\n    <dict>\n)
+      count = 0
+
+      terms.each do |term|
+        (term, term_plural, definition) = ['term', 'term_plural', 'definition'].map { |k| term[k] }
+
+        next if term.nil? || term.empty? || definition.nil?
+        next if term =~ /_android$/
+        # @todo: filter
+        next unless definition.is_a? Hash
+
+        key = term_plural || term
+        out_lines += <<-DICT.gsub(/^[ \t]*\| /,'')
+        |         <key>#{key}</key>
+        |         <dict>
+        |             <key>NSStringLocalizedFormatKey</key>
+        |             <string>%#\@format@</string>
+        |             <key>format</key>
+        |             <dict>
+        |                 <key>NSStringFormatSpecTypeKey</key>
+        |                 <string>NSStringPluralRuleType</string>
+        |                 <key>NSStringFormatValueTypeKey</key>
+        |                 <string>d</string>
+        DICT
+        definition.each do |(quantity, text)|
+          text = text
+                    .gsub("\u2028", '') # Sometimes inserted by the POEditor exporter
+                    .gsub("\n", "\\n") # Replace actual CRLF with '\n'
+                    .gsub(/%(\d+\$)?s/, '%\1@') # replace %s with %@ for iOS
+          out_lines << "                <key>#{quantity}</key>\n"
+          out_lines << "                <string>#{text}</string>\n"
+        end
+        out_lines += <<-DICT.gsub(/^[ \t]*\| /,'')
+        |             </dict>
+        |         </dict>
+        DICT
+        count += 1
+      end
+
+      return if count == 0
+
+      out_lines += %Q(    </dict>\n</plist>\n)
+
+      Log::info(" - Save to file: #{file}")
+      File.write(file, out_lines)
+    end
+
     # Parse POEditor content
     #
     # @param [Hash] terms

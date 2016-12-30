@@ -54,6 +54,8 @@ unless options[:localizable_strings].nil?
   exporter.run(options[:lang]) do |terms|
     Log::subtitle("== Language #{options[:lang]} #{options[:localizable_strings]} ==")
     POEditor::AppleFormatter::write_content(terms, options[:localizable_strings])
+    strings_dict_path = options[:localizable_strings].gsub(/\.strings$/,'.stringsdict')
+    POEditor::AppleFormatter::write_stringsdict(terms, strings_dict_path)
     if options[:context_file]
       Log::subtitle("== Context #{options[:context_file]} ==")
       POEditor::AppleFormatter::write_context(terms, options[:context_file])
