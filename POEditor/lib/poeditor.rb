@@ -56,15 +56,33 @@ module POEditor
   module AppleFormatter
 
     def self.write_content(terms, file, filter)
-      content = self.process_content(terms, filter)
+      # File.open(file, "a+") { |out_file|
+        content = self.process_content(terms, filter)
+        # out_file.write(error_content)
+      # }
+      # content =
       Log::info(" - Save to file: #{file}")
       File.write(file, content)
     end
 
+    # Write the JSON output file containing all context keys
+    #
+    # @param [Array<Hash<String, Any>>] terms
+    #        JSON returned by the POEditor API
+    # @param [String] file
+    #        The path of the file to write
+    # @param [String] filter
+    #         Don't process keys containing this text
+    #
     def self.write_context(terms, file, filter)
-      error_content = self.process_context(terms, file, filter)
+
+      context_hash = self.process_context(terms, filter)
+      context_json = JSON.pretty_generate(context_hash)
       Log::info(" - Save to file: #{file}")
-      File.write(file, error_content)
+      File.open(file, "w") do |fh|
+        fh.write(context_json)
+      end
+
     end
 
     ##
@@ -118,13 +136,15 @@ module POEditor
     ##
     # @param [Hash] terms   The json parsed terms exported by POEditor and sorted alphabetically
     # @return [String]                  The reformatted content, sorted, grouped with 'MARK's and annotated
-    def self.process_context(terms, file, filter)
-      out_lines = ['/'+'*'*79, ' * Exported from POEditor - https://poeditor.com', " * #{Time.now}", ' '+'*'*78+'*'+'/', '']
-      out_lines += ["enum #{File.basename(file, '.swift')}: String, ErrorType {\n"]
-      last_prefix = ''
+    def self.process_context(terms, filter)
+
+      # json_hash = Hash.new
+      json_hash = { "date" => "#{Time.now}" }
+
       filteredKeys = {"filter" => 0, "android" => 0, "nil" => 0}
 
-      #switch on key / context
+      #switch on term / context
+      array_context = Array.new
       terms.each do |term|
         (term, definition, comment, context) = ['term', 'definition', 'comment', 'context'].map { |k| term[k] }
 
@@ -135,29 +155,22 @@ module POEditor
         # Filter by --Filter options
         if (filter && !(term.include? filter)); filteredKeys["filter"] += 1; next; end
 
-        # Generate MARK from prefixes
-        prefix = %r(([^_]*)_.*).match(term)
-        if prefix && prefix[1] != last_prefix
-          last_prefix = prefix[1]
-          mark = last_prefix[0].upcase + last_prefix[1..-1].downcase
-          out_lines += ['', '/'*80, "// MARK: #{mark}"]
-        end
         # Escape some chars
         context = context
                     .gsub("\u2028", '') # Sometimes inserted by the POEditor exporter
                     .gsub("\\", "\\\\\\") # Replace actual \ with \\
                     .gsub('\\\\"', '\\"') # Replace actual \\" with \"
                     .gsub(/%(\d+\$)?s/, '%\1@') # replace %s with %@ for iOS
-        out_lines << %Q(    case #{term.camel_case} = "#{context}";)
+
+        array_context << { "term" => "#{term.camel_case}", "context" => "#{context}" }
+
       end
 
-      out_lines += ["}\n"]
-      out_lines += ["extension #{File.basename(file, '.swift')} {\n"]
-      out_lines += ['  var localizedMessage: String {']
-      out_lines += ['    switch self {']
+      json_hash[:"contexts"] = array_context
 
-      #switch on key / value
-      terms.each do |term|
+      #switch on term / definition
+      array_definition = Array.new
+      terms.each_with_index do |term, index|
         (term, definition, comment, context) = ['term', 'definition', 'comment', 'context'].map { |k| term[k] }
 
         # Skip ugly cases if POEditor is buggy for some entries
@@ -167,13 +180,6 @@ module POEditor
         # Filter by --Filter options
         if (filter && !(term.include? filter)); filteredKeys["filter"] += 1; next; end
 
-        # Generate MARK from prefixes
-        prefix = %r(([^_]*)_.*).match(term)
-        if prefix && prefix[1] != last_prefix
-          last_prefix = prefix[1]
-          mark = last_prefix[0].upcase + last_prefix[1..-1].downcase
-          out_lines += ['', '/'*80, "// MARK: #{mark}"]
-        end
         # Escape some chars
         definition = definition
                     .gsub("\u2028", '') # Sometimes inserted by the POEditor exporter
@@ -181,16 +187,13 @@ module POEditor
                     .gsub('"', '\\"') # Escape quotes
                     .gsub(/%(\d+\$)?s/, '%\1@') # replace %s with %@ for iOS
 
-        out_lines += ["    case .#{term.camel_case}:"]
-        out_lines += ["      return \"#{definition}\""]
-      end
+        array_definition << { "term" => "#{term.camel_case}", "definition" => "#{definition}" }
 
-      out_lines += ['    }']
-      out_lines += ['  }']
-      out_lines += ['}']
+       end
 
-      Log::error("Filtered by:\n Filter: #{filteredKeys["filter"]/2}, Android: #{filteredKeys["android"]/2}, Nil: #{filteredKeys["nil"]/2}")
-      return out_lines.join("\n") + "\n"
+       json_hash[:"definitions"] = array_definition
+       Log::error("Filtered by:\n Filter: #{filteredKeys["filter"]/2}, Android: #{filteredKeys["android"]/2}, Nil: #{filteredKeys["nil"]/2}")
+       return json_hash
 
     end
 
