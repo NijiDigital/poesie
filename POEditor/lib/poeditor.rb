@@ -170,7 +170,10 @@ module POEditor
                     .gsub('\\\\"', '\\"') # Replace actual \\" with \"
                     .gsub(/%(\d+\$)?s/, '%\1@') # replace %s with %@ for iOS
 
-        array_context << { "term" => "#{term}", "term_camelcase" => "#{term.camel_case}", "context" => "#{context}" }
+        array_context << { "term" => "#{term}",
+          "term_camelcase" => "#{term.camel_case}",
+          "term_camelcase_uncapitalized" => "#{term.camel_case.uncapitalize}",
+          "context" => "#{context}" }
 
       end
 
