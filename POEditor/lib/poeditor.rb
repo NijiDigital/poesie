@@ -55,14 +55,21 @@ module POEditor
 
   module AppleFormatter
 
-    def self.write_content(terms, file, filter)
-      # File.open(file, "a+") { |out_file|
-        content = self.process_content(terms, filter)
-        # out_file.write(error_content)
-      # }
-      # content =
+    # Write the .localizable output file containing all POEditor keys
+    #
+    # @param [Array<Hash<String, Any>>] terms
+    #        JSON returned by the POEditor API
+    # @param [String] file
+    #        The path of the file to write
+    #
+    def self.write_content(terms, file)
+
+      content = self.process_content(terms)
       Log::info(" - Save to file: #{file}")
-      File.write(file, content)
+      File.open(file, "w") do |fh|
+        fh.write(content)
+      end
+
     end
 
     # Write the JSON output file containing all context keys
@@ -71,12 +78,10 @@ module POEditor
     #        JSON returned by the POEditor API
     # @param [String] file
     #        The path of the file to write
-    # @param [String] filter
-    #         Don't process keys containing this text
     #
-    def self.write_context(terms, file, filter)
+    def self.write_context(terms, file)
 
-      context_hash = self.process_context(terms, filter)
+      context_hash = self.process_context(terms)
       context_json = JSON.pretty_generate(context_hash)
       Log::info(" - Save to file: #{file}")
       File.open(file, "w") do |fh|
@@ -85,25 +90,27 @@ module POEditor
 
     end
 
-    ##
-    ## Content
-    ##
-    # @param [Hash] terms   The json parsed terms exported by POEditor and sorted alphabetically
-    # @return [String]                  The reformatted content, sorted, grouped with 'MARK's and annotated
-    def self.process_content(terms, filter)
+    # Parse POEditor content
+    #
+    # @param [Hash] terms
+    #        JSON returned by the POEditor API
+    # @return [String]
+    #        The reformatted content, sorted, grouped with 'MARK's and annotated
+    #
+    def self.process_content(terms)
       out_lines = ['/'+'*'*79, ' * Exported from POEditor - https://poeditor.com', " * #{Time.now}", ' '+'*'*79+'/', '']
       last_prefix = ''
-      filteredKeys = {"filter" => 0, "android" => 0, "nil" => 0}
+      stats = { :android => 0, :nil => 0, :count => 0 }
 
       terms.each do |term|
         (term, definition, comment, context) = ['term', 'definition', 'comment', 'context'].map { |k| term[k] }
 
         # Skip ugly cases if POEditor is buggy for some entries
-        if term.nil? || term.empty? || definition.nil?; filteredKeys["nil"] += 1; next; end
+        if term.nil? || term.empty? || definition.nil? || definition.empty? ; stats[:nil] += 1; next; end
         # Remove android-specific strings
-        if term =~ /_android$/; filteredKeys["android"] += 1; next; end
-        # Filter
-        if (filter && (term.include? filter)); filteredKeys["filter"] += 1; next; end
+        if term =~ /_android$/; stats[:android] += 1; next; end
+        # Count
+        stats[:count] += 1
 
         # Generate MARK from prefixes
         prefix = %r(([^_]*)_.*).match(term)
@@ -116,7 +123,6 @@ module POEditor
         if definition.is_a? Hash
           definition = definition["one"]
         end
-      #  puts("#{key} : #{value}")
 
         definition = definition
                     .gsub("\u2028", '') # Sometimes inserted by the POEditor exporter
@@ -127,21 +133,23 @@ module POEditor
         out_lines << %Q("#{term}" = "#{definition}";)
       end
 
-      Log::error("Filtered by:\n Filter: #{filteredKeys["filter"]}, Android: #{filteredKeys["android"]}, Nil: #{filteredKeys["nil"]}")
+      Log::info("Stats:\n Android: #{stats[:android]}, Nil: #{stats[:nil]}, Count: #{stats[:count]}")
       return out_lines.join("\n") + "\n"
     end
 
-    ##
-    ## Context
-    ##
-    # @param [Hash] terms   The json parsed terms exported by POEditor and sorted alphabetically
-    # @return [String]                  The reformatted content, sorted, grouped with 'MARK's and annotated
-    def self.process_context(terms, filter)
+    # Parse POEditor content containing a context value
+    #
+    # @param [Hash] terms
+    #        JSON returned by the POEditor API
+    # @return [Hash]
+    #        The reformatted content json generating ready
+    #
+    def self.process_context(terms)
 
       # json_hash = Hash.new
       json_hash = { "date" => "#{Time.now}" }
 
-      filteredKeys = {"filter" => 0, "android" => 0, "nil" => 0}
+      stats = { :android => 0, :nil => 0, :count => 0 }
 
       #switch on term / context
       array_context = Array.new
@@ -149,11 +157,11 @@ module POEditor
         (term, definition, comment, context) = ['term', 'definition', 'comment', 'context'].map { |k| term[k] }
 
         # Skip ugly cases if POEditor is buggy for some entries
-        if term.nil? || term.empty? || definition.nil? || context.nil?; filteredKeys["nil"] += 1; next; end
+        if term.nil? || term.empty? || context.nil? || context.empty? ; stats[:nil] += 1; next; end
         # Remove android-specific strings
-        if term =~ /_android$/; filteredKeys["android"] += 1; next; end
-        # Filter by --Filter options
-        if (filter && !(term.include? filter)); filteredKeys["filter"] += 1; next; end
+        if term =~ /_android$/; stats[:android] += 1; next; end
+        # Count
+        stats[:count] += 1
 
         # Escape some chars
         context = context
@@ -162,38 +170,13 @@ module POEditor
                     .gsub('\\\\"', '\\"') # Replace actual \\" with \"
                     .gsub(/%(\d+\$)?s/, '%\1@') # replace %s with %@ for iOS
 
-        array_context << { "term" => "#{term.camel_case}", "context" => "#{context}" }
+        array_context << { "term" => "#{term}", "term_camelcase" => "#{term.camel_case}", "context" => "#{context}" }
 
       end
 
       json_hash[:"contexts"] = array_context
-
-      #switch on term / definition
-      array_definition = Array.new
-      terms.each_with_index do |term, index|
-        (term, definition, comment, context) = ['term', 'definition', 'comment', 'context'].map { |k| term[k] }
-
-        # Skip ugly cases if POEditor is buggy for some entries
-        if term.nil? || term.empty? || definition.nil? || context.nil?; filteredKeys["nil"] += 1; next; end
-        # Remove android-specific strings
-        if term =~ /_android$/; filteredKeys["android"] += 1; next; end
-        # Filter by --Filter options
-        if (filter && !(term.include? filter)); filteredKeys["filter"] += 1; next; end
-
-        # Escape some chars
-        definition = definition
-                    .gsub("\u2028", '') # Sometimes inserted by the POEditor exporter
-                    .gsub("\n", "\\n") # Replace actual CRLF with '\n'
-                    .gsub('"', '\\"') # Escape quotes
-                    .gsub(/%(\d+\$)?s/, '%\1@') # replace %s with %@ for iOS
-
-        array_definition << { "term" => "#{term.camel_case}", "definition" => "#{definition}" }
-
-       end
-
-       json_hash[:"definitions"] = array_definition
-       Log::error("Filtered by:\n Filter: #{filteredKeys["filter"]/2}, Android: #{filteredKeys["android"]/2}, Nil: #{filteredKeys["nil"]/2}")
-       return json_hash
+      Log::info("Stats:\n Android: #{stats[:android]}, Nil: #{stats[:nil]}, Count: #{stats[:count]}")
+      return json_hash
 
     end
 
