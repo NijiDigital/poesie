@@ -5,17 +5,22 @@
 
 enum JsonError: String, ErrorType {
   {{#contexts}}
-  case {{term}} = "{{context}}";
+  case {{{term_camelcase}}} = "{{{context}}}";
   {{/contexts}}
 }
 
 extension JsonError {
+
   var localizedMessage: String {
+    return NSLocalizedString(self.localizedKey, "")
+  }
+
+  var localizedKey: String {
     switch self {
-      {{#definitions}}
-      case .{{term}}:
-        return "{{definition}}"
-      {{/definitions}}
+      {{#contexts}}
+      case .{{{term_camelcase}}}:
+        return "{{{term}}}"
+      {{/contexts}}
     }
   }
 }
