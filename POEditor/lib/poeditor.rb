@@ -78,35 +78,35 @@ module POEditor
       filteredKeys = {"filter" => 0, "android" => 0, "nil" => 0}
 
       terms.each do |term|
-        (key, value, comment, context) = ['term', 'definition', 'comment', 'context'].map { |k| term[k] }
+        (term, definition, comment, context) = ['term', 'definition', 'comment', 'context'].map { |k| term[k] }
 
         # Skip ugly cases if POEditor is buggy for some entries
-        if key.nil? || key.empty? || value.nil?; filteredKeys["nil"] += 1; next; end
+        if term.nil? || term.empty? || definition.nil?; filteredKeys["nil"] += 1; next; end
         # Remove android-specific strings
-        if key =~ /_android$/; filteredKeys["android"] += 1; next; end
+        if term =~ /_android$/; filteredKeys["android"] += 1; next; end
         # Filter
-        if (filter && (key.include? filter)); filteredKeys["filter"] += 1; next; end
+        if (filter && (term.include? filter)); filteredKeys["filter"] += 1; next; end
 
         # Generate MARK from prefixes
-        prefix = %r(([^_]*)_.*).match(key)
+        prefix = %r(([^_]*)_.*).match(term)
         if prefix && prefix[1] != last_prefix
           last_prefix = prefix[1]
           mark = last_prefix[0].upcase + last_prefix[1..-1].downcase
           out_lines += ['', '/'*80, "// MARK: #{mark}"]
         end
         # Escape some chars
-        if value.is_a? Hash
-          value = value["one"]
+        if definition.is_a? Hash
+          definition = definition["one"]
         end
       #  puts("#{key} : #{value}")
 
-        value = value
+        definition = definition
                     .gsub("\u2028", '') # Sometimes inserted by the POEditor exporter
                     .gsub("\n", "\\n") # Replace actual CRLF with '\n'
                     .gsub('"', '\\"') # Escape quotes
                     .gsub(/%(\d+\$)?s/, '%\1@') # replace %s with %@ for iOS
         out_lines << %Q(// CONTEXT: #{context.gsub("\n", '\n')}) unless context.empty?
-        out_lines << %Q("#{key}" = "#{value}";)
+        out_lines << %Q("#{term}" = "#{definition}";)
       end
 
       Log::error("Filtered by:\n Filter: #{filteredKeys["filter"]}, Android: #{filteredKeys["android"]}, Nil: #{filteredKeys["nil"]}")
@@ -126,17 +126,17 @@ module POEditor
 
       #switch on key / context
       terms.each do |term|
-        (key, value, comment, context) = ['term', 'definition', 'comment', 'context'].map { |k| term[k] }
+        (term, definition, comment, context) = ['term', 'definition', 'comment', 'context'].map { |k| term[k] }
 
         # Skip ugly cases if POEditor is buggy for some entries
-        if key.nil? || key.empty? || value.nil? || context.nil?; filteredKeys["nil"] += 1; next; end
+        if term.nil? || term.empty? || definition.nil? || context.nil?; filteredKeys["nil"] += 1; next; end
         # Remove android-specific strings
-        if key =~ /_android$/; filteredKeys["android"] += 1; next; end
+        if term =~ /_android$/; filteredKeys["android"] += 1; next; end
         # Filter by --Filter options
-        if (filter && !(key.include? filter)); filteredKeys["filter"] += 1; next; end
+        if (filter && !(term.include? filter)); filteredKeys["filter"] += 1; next; end
 
         # Generate MARK from prefixes
-        prefix = %r(([^_]*)_.*).match(key)
+        prefix = %r(([^_]*)_.*).match(term)
         if prefix && prefix[1] != last_prefix
           last_prefix = prefix[1]
           mark = last_prefix[0].upcase + last_prefix[1..-1].downcase
@@ -148,7 +148,7 @@ module POEditor
                     .gsub("\\", "\\\\\\") # Replace actual \ with \\
                     .gsub('\\\\"', '\\"') # Replace actual \\" with \"
                     .gsub(/%(\d+\$)?s/, '%\1@') # replace %s with %@ for iOS
-        out_lines << %Q(    case #{key.camel_case} = "#{context}";)
+        out_lines << %Q(    case #{term.camel_case} = "#{context}";)
       end
 
       out_lines += ["}\n"]
@@ -158,31 +158,31 @@ module POEditor
 
       #switch on key / value
       terms.each do |term|
-        (key, value, comment, context) = ['term', 'definition', 'comment', 'context'].map { |k| term[k] }
+        (term, definition, comment, context) = ['term', 'definition', 'comment', 'context'].map { |k| term[k] }
 
         # Skip ugly cases if POEditor is buggy for some entries
-        if key.nil? || key.empty? || value.nil? || context.nil?; filteredKeys["nil"] += 1; next; end
+        if term.nil? || term.empty? || definition.nil? || context.nil?; filteredKeys["nil"] += 1; next; end
         # Remove android-specific strings
-        if key =~ /_android$/; filteredKeys["android"] += 1; next; end
+        if term =~ /_android$/; filteredKeys["android"] += 1; next; end
         # Filter by --Filter options
-        if (filter && !(key.include? filter)); filteredKeys["filter"] += 1; next; end
+        if (filter && !(term.include? filter)); filteredKeys["filter"] += 1; next; end
 
         # Generate MARK from prefixes
-        prefix = %r(([^_]*)_.*).match(key)
+        prefix = %r(([^_]*)_.*).match(term)
         if prefix && prefix[1] != last_prefix
           last_prefix = prefix[1]
           mark = last_prefix[0].upcase + last_prefix[1..-1].downcase
           out_lines += ['', '/'*80, "// MARK: #{mark}"]
         end
         # Escape some chars
-        value = value
+        definition = definition
                     .gsub("\u2028", '') # Sometimes inserted by the POEditor exporter
                     .gsub("\n", "\\n") # Replace actual CRLF with '\n'
                     .gsub('"', '\\"') # Escape quotes
                     .gsub(/%(\d+\$)?s/, '%\1@') # replace %s with %@ for iOS
 
-        out_lines += ["    case .#{key.camel_case}:"]
-        out_lines += ["      return \"#{value}\""]
+        out_lines += ["    case .#{term.camel_case}:"]
+        out_lines += ["      return \"#{definition}\""]
       end
 
       out_lines += ['    }']
@@ -207,18 +207,18 @@ module POEditor
       xml_builder.resources {
           |resources|
         terms.each do |term|
-          (key, value, plurals, comment, context) = ['term', 'definition', 'term_plural', 'comment', 'context'].map { |k| term[k] }
+          (term, definition, plurals, comment, context) = ['term', 'definition', 'term_plural', 'comment', 'context'].map { |k| term[k] }
           # Skip ugly cases if POEditor is buggy for some entries
-          next if key.nil? || key.empty? || value.nil?
-          next if key =~ /_ios$/
+          next if term.nil? || term.empty? || definition.nil?
+          next if term =~ /_ios$/
           xml_builder.comment!(context) unless context.empty?
           if plurals.empty?
-            value = value.gsub('"', '\\"')
-            resources.string("\"#{value}\"", :name => key)
+            definition = definition.gsub('"', '\\"')
+            resources.string("\"#{definition}\"", :name => term)
           else
             resources.plurals(:name => plurals) {
                 |plural|
-              value.each do |plural_quantity, plural_value|
+              definition.each do |plural_quantity, plural_value|
                 plural_value = plural_value.gsub('"', '\\"')
                 plural.item("\"#{plural_value}\"", :quantity => plural_quantity)
               end
