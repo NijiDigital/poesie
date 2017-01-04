@@ -5,7 +5,7 @@
 
 enum JsonError: String, ErrorType {
   {{#contexts}}
-  case {{{term_camelcase}}} = "{{{context}}}";
+  case {{{term_camelcase_uncapitalized}}} = "{{{context}}}";
   {{/contexts}}
 }
 
@@ -18,7 +18,7 @@ extension JsonError {
   var localizedKey: String {
     switch self {
       {{#contexts}}
-      case .{{{term_camelcase}}}:
+      case .{{{term_camelcase_uncapitalized}}}:
         return "{{{term}}}"
       {{/contexts}}
     }
