@@ -1,0 +1,21 @@
+/*******************************************************************************
+ * Exported from POEditor - https://poeditor.com
+ * {{date}}
+ *******************************************************************************/
+
+enum JsonError: String, ErrorType {
+  {{#contexts}}
+  case {{term}} = "{{context}}";
+  {{/contexts}}
+}
+
+extension JsonError {
+  var localizedMessage: String {
+    switch self {
+      {{#definitions}}
+      case .{{term}}:
+        return "{{definition}}"
+      {{/definitions}}
+    }
+  }
+}
