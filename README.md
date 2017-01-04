@@ -22,6 +22,7 @@ Usage: poeditor [options]
     -l, --lang LANGUAGE         Specify your POEditor project language
     -i, --ios PATH              Specify iOS Localizable.strings file path
     -a, --android PATH          Specify Android strings.xml file path
+    -c, --context PATH          Specify your context.json file
     -h, --help                  Show this message
     -v, --version               Show version
 ```
@@ -54,10 +55,10 @@ Se connecter sur [POEditor](https://poeditor.com) avec le compte suivant identif
 * Trouver un nom de clé **cohérent** avec les clés existantes
 
 **Exemples :**
-> 
+>
 > Si vous ajoutez une clé qui concerne le ou les magasin(s), nommez là
 > `shop_xxx_xxx`.
-> 
+>
 > Si vous ajoutez un terme assez générique synonyme d'action comme **Appuyer**, nommez la clé `action_push` par exemple.
 
 * Suffixez par `_ios`, `_ios(+)` ou `_android` toute clé d’un terme qui est un **pluriel**.
@@ -98,3 +99,23 @@ Exécuter le script Ruby `poeditor` qui **génère** les fichiers de strings dan
 ```
 
 > **NB:** Les identifiants de vos projets respectifs sont disponibles à l'adresse suivante [POEditor](https://poeditor.com/account/api).
+
+### 4) Utilisation de --context
+
+Exécuter le script Ruby `poeditor` qui **génère** un fichier .json contenant toutes les entités comprenant un élément context.
+
+**Exemples** :
+
+```
+➜ ✗ poeditor --token "..." --project "..." --lang fr --ios .../localizable.strings --context .../context.json
+```
+
+Pour utiliser le résultat.json obtenu, vous pouvez utiliser [Mustache](https://mustache.github.io).
+
+**Exemples** :
+
+```
+➜ ✗ mustache context.json template.mustache > context.swift
+```
+
+> **NB:** Un exemple de template est disponible dans le dossier `exemple`
