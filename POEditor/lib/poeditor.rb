@@ -90,18 +90,23 @@ module POEditor
 
     end
 
-    def self.write_stringsdict(terms, file, filter)
+    # @todo Split the method in two, like with other methods
+    # @todo Add method parameters documentation
+    def self.write_stringsdict(terms, file)
       out_lines = %Q(<plist version="1.0">\n    <dict>\n)
+      # @todo: Use a "stats" hash instead, like with the other methods
       count = 0
 
       terms.each do |term|
         (term, term_plural, definition) = ['term', 'term_plural', 'definition'].map { |k| term[k] }
 
+        # @todo: Fill the stats hash when filtering entries
         next if term.nil? || term.empty? || definition.nil?
         next if term =~ /_android$/
-        # @todo: filter
         next unless definition.is_a? Hash
 
+        # @todo: Use Builder::XmlMarkup.new to build the XML instead
+        # (see AndroidFormatter below for inspiration)
         key = term_plural || term
         out_lines += <<-DICT.gsub(/^[ \t]*\| /,'')
         |         <key>#{key}</key>
@@ -130,9 +135,11 @@ module POEditor
         count += 1
       end
 
+      # Maybe still generate the output file even if it's empty, so it can be added to the Xcode project anyway
       return if count == 0
 
       out_lines += %Q(    </dict>\n</plist>\n)
+      # @todo Log stats to stdout, like with other methods
 
       Log::info(" - Save to file: #{file}")
       File.write(file, out_lines)
