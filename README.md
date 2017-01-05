@@ -102,7 +102,7 @@ Exécuter le script Ruby `poeditor` qui **génère** les fichiers de strings dan
 
 ### 4) Utilisation de --context
 
-Exécuter le script Ruby `poeditor` qui **génère** un fichier .json contenant toutes les entités comprenant un élément context.
+Exécuter le script Ruby `poeditor` avec l'option `--context FILE`, qui **génère** un fichier .json contenant toutes les entités comprenant un élément context.
 
 **Exemples** :
 
@@ -110,12 +110,8 @@ Exécuter le script Ruby `poeditor` qui **génère** un fichier .json contenant 
 ➜ ✗ poeditor --token "..." --project "..." --lang fr --ios .../localizable.strings --context .../context.json
 ```
 
-Pour utiliser le résultat.json obtenu, vous pouvez utiliser [Mustache](https://mustache.github.io).
+Vous pouvez ensuite utiliser le résultat du fichier `context.json` obtenu comme vous le souhaitez, voici par exemple quelques idées :
 
-**Exemples** :
-
-```
-➜ ✗ mustache context.json template.mustache > context.swift
-```
-
-> **NB:** Un exemple de template est disponible dans le dossier `exemple`
+* Intégrer le fichier `context.json` dans votre projet Xcode, et utilise `JSONSerialization` pour le parser dans votre code Swift et vous en servir dans votre code
+* Utiliser un script ruby simple pour générer du code Swift d'après ce fichier JSON. Un exemple est disponible dans `exemples/gen-context.rb`, et ce script est invoqué dans l'exemple `exemples/poeditor+context.sh`.
+* Utiliser un outil de templating comme [Liquid](https://github.com/Shopify/liquid). Un exemple est disponible dans `exemples/gen-context-with-liquid.rb`

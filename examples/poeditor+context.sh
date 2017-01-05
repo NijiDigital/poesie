@@ -14,10 +14,13 @@ fi
 ### Project-specific variables ###
 PROJ_DIR=$(dirname $0)/../ProjectName
 LOCALIZABLE="$PROJ_DIR/Resources/Base.lproj/Localizable.strings"
+CONTEXT_JSON="$PROJ_DIR/Resources/Context.json"
+CONTEXT_GENERATED_SWIFT_FILE="$PROJ_DIR/Constants/JsonError.swift"
 # Fill the following with values from https://poeditor.com/account/api
 API_TOKEN=""
 PROJECT_ID=""
 
 
-### Run the Script ###
-"$POEDITOR_BIN" --token "$API_TOKEN" --project "$PROJECT_ID" --lang fr --ios "$LOCALIZABLE"
+### Run the Scripts ###
+"$POEDITOR_BIN" --token "$API_TOKEN" --project "$PROJECT_ID" --lang fr --ios "$LOCALIZABLE" --context "$CONTEXT_JSON"
+ruby gen-context.rb "$CONTEXT_JSON" > "$CONTEXT_GENERATED_SWIFT_FILE"
