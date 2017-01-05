@@ -22,6 +22,7 @@ Usage: poeditor [options]
     -l, --lang LANGUAGE         Specify your POEditor project language
     -i, --ios PATH              Specify iOS Localizable.strings file path
     -a, --android PATH          Specify Android strings.xml file path
+    -c, --context PATH          Specify your context.json file
     -h, --help                  Show this message
     -v, --version               Show version
 ```
@@ -54,10 +55,10 @@ Se connecter sur [POEditor](https://poeditor.com) avec le compte suivant identif
 * Trouver un nom de clé **cohérent** avec les clés existantes
 
 **Exemples :**
-> 
+>
 > Si vous ajoutez une clé qui concerne le ou les magasin(s), nommez là
 > `shop_xxx_xxx`.
-> 
+>
 > Si vous ajoutez un terme assez générique synonyme d'action comme **Appuyer**, nommez la clé `action_push` par exemple.
 
 * Suffixez par `_ios`, `_ios(+)` ou `_android` toute clé d’un terme qui est un **pluriel**.
@@ -98,3 +99,19 @@ Exécuter le script Ruby `poeditor` qui **génère** les fichiers de strings dan
 ```
 
 > **NB:** Les identifiants de vos projets respectifs sont disponibles à l'adresse suivante [POEditor](https://poeditor.com/account/api).
+
+### 4) Utilisation de --context
+
+Exécuter le script Ruby `poeditor` avec l'option `--context FILE`, qui **génère** un fichier .json contenant toutes les entités comprenant un élément context.
+
+**Exemples** :
+
+```
+➜ ✗ poeditor --token "..." --project "..." --lang fr --ios .../localizable.strings --context .../context.json
+```
+
+Vous pouvez ensuite utiliser le résultat du fichier `context.json` obtenu comme vous le souhaitez, voici par exemple quelques idées :
+
+* Intégrer le fichier `context.json` dans votre projet Xcode, et utilise `JSONSerialization` pour le parser dans votre code Swift et vous en servir dans votre code
+* Utiliser un script ruby simple pour générer du code Swift d'après ce fichier JSON. Un exemple est disponible dans `exemples/gen-context.rb`, et ce script est invoqué dans l'exemple `exemples/poeditor+context.sh`.
+* Utiliser un outil de templating comme [Liquid](https://github.com/Shopify/liquid). Un exemple est disponible dans `exemples/gen-context-with-liquid.rb`

@@ -16,7 +16,8 @@ options = {
     :project_id => nil,
     :lang => nil,
     :localizable_strings => nil,
-    :strings_xml => nil
+    :strings_xml => nil,
+    :context_file => nil
 }
 
 OptionParser.new do |opts|
@@ -36,6 +37,9 @@ OptionParser.new do |opts|
   opts.on('-a PATH', '--android PATH', %q(Specify Android strings.xml file path)) do |path|
     options[:strings_xml] = path
   end
+  opts.on('-c PATH', '--context PATH', %q(Specify the *.swift file path)) do |path|
+    options[:context_file] = path
+  end
   opts.on_tail('-h', '--help', %q(Show this message)) { puts opts; exit 1 }
   opts.on_tail('-v', '--version', 'Show version') { puts POEditor::VERSION; exit }
   opts.parse!
@@ -47,8 +51,14 @@ exporter = POEditor::Exporter.new(options[:api_token], options[:project_id])
 POEditor.exit_with_error('You need to specify your POEditor project language using --lang option (see --help for more info)') if options[:lang].nil?
 unless options[:localizable_strings].nil?
   Log::title('== iOS ==')
-  langs = {options[:lang] => options[:localizable_strings]}
-  exporter.run(langs) { |s| POEditor::AppleFormatter::process_content(s) }
+  exporter.run(options[:lang]) do |terms|
+    Log::subtitle("== Language #{options[:lang]} #{options[:localizable_strings]} ==")
+    POEditor::AppleFormatter::write_content(terms, options[:localizable_strings])
+    if options[:context_file]
+      Log::subtitle("== Context #{options[:context_file]} ==")
+      POEditor::AppleFormatter::write_context(terms, options[:context_file])
+    end
+  end
 end
 unless options[:strings_xml].nil?
   Log::title('== Android ==')
