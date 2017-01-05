@@ -1,4 +1,4 @@
-#!/bin/env ruby
+#!/usr/bin/env ruby
 
 unless ARGV.count >= 1
   puts "Usage: #{File.basename(__FILE__)} JSON_FILE"

@@ -1,0 +1,25 @@
+/*******************************************************************************
+ * Exported from POEditor - https://poeditor.com
+ * {{date}}
+ *******************************************************************************/
+
+enum JsonError: String, ErrorType {
+  {% for item in contexts %}
+  case {{ item.term | snake_to_camel_case | uncapitalize }} = "{{ item.context | escape_quotes }}"
+  {% endfor %}
+}
+
+extension JsonError {
+  var localizedMessage: String {
+    return NSLocalizedString(self.localizedKey, "")
+  }
+
+  var localizedKey: String {
+    switch self {
+      {% for item in contexts %}
+      case .{{ item.term | snake_to_camel_case | uncapitalize }}:
+        return "{{ item.term | escape_quotes }}"
+      {% endfor %}
+    }
+  }
+}

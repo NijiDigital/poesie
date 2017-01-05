@@ -23,4 +23,6 @@ PROJECT_ID=""
 
 ### Run the Scripts ###
 "$POEDITOR_BIN" --token "$API_TOKEN" --project "$PROJECT_ID" --lang fr --ios "$LOCALIZABLE" --context "$CONTEXT_JSON"
-ruby gen-context.rb "$CONTEXT_JSON" > "$CONTEXT_GENERATED_SWIFT_FILE"
+gen-context.rb "$CONTEXT_JSON" > "$CONTEXT_GENERATED_SWIFT_FILE"
+# Or alternatively if you prefer to use Liquid templates:
+# gen-context-with-liquid.rb "$CONTEXT_JSON" "context-template.liquid" > "$CONTEXT_GENERATED_SWIFT_FILE"

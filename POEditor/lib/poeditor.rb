@@ -133,7 +133,7 @@ module POEditor
         out_lines << %Q("#{term}" = "#{definition}";)
       end
 
-      Log::info("Stats:\n Android: #{stats[:android]}, Nil: #{stats[:nil]}, Count: #{stats[:count]}")
+      Log::info("[Stats] #{stats[:count]} strings processed (Filtered out #{stats[:android]} android strings, #{stats[:nil]} nil entries)")
       return out_lines.join("\n") + "\n"
     end
 
@@ -174,7 +174,7 @@ module POEditor
       end
 
       json_hash[:"contexts"] = array_context
-      Log::info("Stats:\n Android: #{stats[:android]}, Nil: #{stats[:nil]}, Count: #{stats[:count]}")
+      Log::info("[Stats] #{stats[:count]} contexts processed (Filtered out #{stats[:android]} android entries, #{stats[:nil]} nil contexts)")
       return json_hash
 
     end
