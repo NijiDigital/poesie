@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "AppleExporter" do
+describe POEditor::AppleFormatter do
 	before do
 		Log::quiet = true
 	end

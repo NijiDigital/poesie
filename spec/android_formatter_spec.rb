@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "AndroidExporter" do
+describe POEditor::AndroidFormatter do
 	before do
 		Log::quiet = true
 	end

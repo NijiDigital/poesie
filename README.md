@@ -22,9 +22,9 @@ Even though POEditor's web interface allows you to export the strings in those f
 
 This project is written in Ruby.
 
-Simply clone the project on you computer, then invoke it using its full path `<path/where/you/cloned/it>/POEditor/bin/poeditor`.
+Simply clone the project on you computer, then invoke it using its full path `<path/where/you/cloned/POEditor>/bin/poeditor`.
 
-You could also add the `<path/where/you/cloned/it>/POEditor/bin/` path to your `PATH` environment variable if you prefer.
+You could also add the `<path/where/you/cloned/POEditor>/bin/` path to your `PATH` environment variable if you prefer.
 
 
 ## Using POEditor properly
