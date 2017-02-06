@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "AppleExporter" do
+describe "AndroidExporter" do
 	before do
 		Log::quiet = true
 	end

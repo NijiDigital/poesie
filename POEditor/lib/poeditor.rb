@@ -14,14 +14,25 @@ module POEditor
   end
 
   class Exporter
-    # @param [String] api_token    POEditor API Token
-    # @param [String] project_id   ID of the project in your POEditor Dashboard
+    # @param [String] api_token
+    #        POEditor API Token
+    # @param [String] project_id
+    #        ID of the project in your POEditor Dashboard
+    #
     def initialize(api_token, project_id)
       @api_token = api_token
       @project_id = project_id
     end
 
-    # @return [String]   The language to export
+    # Use the POEditor API to download the terms for a given language, then call a block
+    # to post-process those terms (exported as a JSON structure)
+    #
+    # @param [String] lang
+    #        The language to export
+    # @block [[JSON] -> Void]
+    #        The action to do with the exported terms
+    #        Typically call one of AppleFormatter::… or AndroidFormatter::… methods here
+    #
     def run(lang)
         Log::info(' - Generating export...')
         uri = generate_export_uri(lang)
@@ -37,8 +48,10 @@ module POEditor
 
     private
 
-    # @param [String] lang     Language code, like 'fr', 'en', etc
-    # @return [String]         URL of the exported file ready to be downloaded
+    # @param [String] lang
+    #        Language code, like 'fr', 'en', etc
+    # @return [String] URL of the exported file ready to be downloaded
+    #
     def generate_export_uri(lang)
       uri = URI('https://poeditor.com/api/')
       res = Net::HTTP.post_form(uri, 'api_token' => @api_token, 'action' => 'export', 'id' => @project_id, 'type' => 'json', 'language' => lang)
@@ -55,7 +68,7 @@ module POEditor
 
   module AppleFormatter
 
-    # Write the .localizable output file containing all POEditor keys
+    # Write the Localizable.strings output file
     #
     # @param [Array<Hash<String, Any>>] terms
     #        JSON returned by the POEditor API
@@ -63,34 +76,58 @@ module POEditor
     #        The path of the file to write
     #
     def self.write_strings_file(terms, file)
+      out_lines = ['/'+'*'*79, ' * Exported from POEditor - https://poeditor.com', " * #{Time.now}", ' '+'*'*79+'/', '']
+      last_prefix = ''
+      stats = { :android => 0, :nil => 0, :count => 0 }
 
-      content = self.process_content(terms)
+      terms.each do |term|
+        (term, definition, comment, context) = ['term', 'definition', 'comment', 'context'].map { |k| term[k] }
+
+        # Skip ugly cases if POEditor is buggy for some entries
+        if term.nil? || term.empty? || definition.nil? || definition.empty? ; stats[:nil] += 1; next; end
+        # Remove android-specific strings
+        if term =~ /_android$/; stats[:android] += 1; next; end
+        # Count
+        stats[:count] += 1
+
+        # Generate MARK from prefixes
+        prefix = %r(([^_]*)_.*).match(term)
+        if prefix && prefix[1] != last_prefix
+          last_prefix = prefix[1]
+          mark = last_prefix[0].upcase + last_prefix[1..-1].downcase
+          out_lines += ['', '/'*80, "// MARK: #{mark}"]
+        end
+        # Escape some chars
+        if definition.is_a? Hash
+          definition = definition["one"]
+        end
+
+        definition = definition
+                    .gsub("\u2028", '') # Sometimes inserted by the POEditor exporter
+                    .gsub("\n", "\\n") # Replace actual CRLF with '\n'
+                    .gsub('"', '\\"') # Escape quotes
+                    .gsub(/%(\d+\$)?s/, '%\1@') # replace %s with %@ for iOS
+        out_lines << %Q(// CONTEXT: #{context.gsub("\n", '\n')}) unless context.empty?
+        out_lines << %Q("#{term}" = "#{definition}";)
+      end
+
+      content = out_lines.join("\n") + "\n"
+
+
+      Log::info("   [Stats] #{stats[:count]} strings processed (Filtered out #{stats[:android]} android strings, #{stats[:nil]} nil entries)")
       Log::info(" - Save to file: #{file}")
       File.open(file, "w") do |fh|
         fh.write(content)
       end
-
     end
 
-    # Write the JSON output file containing all context keys
+    # Write the Localizable.stringsdict output file
     #
     # @param [Array<Hash<String, Any>>] terms
     #        JSON returned by the POEditor API
     # @param [String] file
     #        The path of the file to write
     #
-    def self.write_context_json(terms, file)
-      context_hash = self.process_context(terms)
-      context_json = JSON.pretty_generate(context_hash)
-      Log::info(" - Save to file: #{file}")
-      File.open(file, "w") do |fh|
-        fh.write(context_json)
-      end
-
-    end
-
-    # @todo Split the method in two, like with other methods
-    # @todo Add method parameters documentation
     def self.write_stringsdict_file(terms, file)
       out_lines = %Q(<plist version="1.0">\n    <dict>\n)
       # @todo: Use a "stats" hash instead, like with the other methods
@@ -144,63 +181,14 @@ module POEditor
       File.write(file, out_lines)
     end
 
-    # Parse POEditor content
+    # Write the JSON output file containing all context keys
     #
-    # @param [Hash] terms
+    # @param [Array<Hash<String, Any>>] terms
     #        JSON returned by the POEditor API
-    # @return [String]
-    #        The reformatted content, sorted, grouped with 'MARK's and annotated
+    # @param [String] file
+    #        The path of the file to write
     #
-    def self.process_content(terms)
-      out_lines = ['/'+'*'*79, ' * Exported from POEditor - https://poeditor.com', " * #{Time.now}", ' '+'*'*79+'/', '']
-      last_prefix = ''
-      stats = { :android => 0, :nil => 0, :count => 0 }
-
-      terms.each do |term|
-        (term, definition, comment, context) = ['term', 'definition', 'comment', 'context'].map { |k| term[k] }
-
-        # Skip ugly cases if POEditor is buggy for some entries
-        if term.nil? || term.empty? || definition.nil? || definition.empty? ; stats[:nil] += 1; next; end
-        # Remove android-specific strings
-        if term =~ /_android$/; stats[:android] += 1; next; end
-        # Count
-        stats[:count] += 1
-
-        # Generate MARK from prefixes
-        prefix = %r(([^_]*)_.*).match(term)
-        if prefix && prefix[1] != last_prefix
-          last_prefix = prefix[1]
-          mark = last_prefix[0].upcase + last_prefix[1..-1].downcase
-          out_lines += ['', '/'*80, "// MARK: #{mark}"]
-        end
-        # Escape some chars
-        if definition.is_a? Hash
-          definition = definition["one"]
-        end
-
-        definition = definition
-                    .gsub("\u2028", '') # Sometimes inserted by the POEditor exporter
-                    .gsub("\n", "\\n") # Replace actual CRLF with '\n'
-                    .gsub('"', '\\"') # Escape quotes
-                    .gsub(/%(\d+\$)?s/, '%\1@') # replace %s with %@ for iOS
-        out_lines << %Q(// CONTEXT: #{context.gsub("\n", '\n')}) unless context.empty?
-        out_lines << %Q("#{term}" = "#{definition}";)
-      end
-
-      Log::info("[Stats] #{stats[:count]} strings processed (Filtered out #{stats[:android]} android strings, #{stats[:nil]} nil entries)")
-      return out_lines.join("\n") + "\n"
-    end
-
-    # Parse POEditor content containing a context value
-    #
-    # @param [Hash] terms
-    #        JSON returned by the POEditor API
-    # @return [Hash]
-    #        The reformatted content json generating ready
-    #
-    def self.process_context(terms)
-
-      # json_hash = Hash.new
+    def self.write_context_json(terms, file)
       json_hash = { "date" => "#{Time.now}" }
 
       stats = { :android => 0, :nil => 0, :count => 0 }
@@ -228,26 +216,30 @@ module POEditor
       end
 
       json_hash[:"contexts"] = array_context
-      Log::info("[Stats] #{stats[:count]} contexts processed (Filtered out #{stats[:android]} android entries, #{stats[:nil]} nil contexts)")
-      return json_hash
 
+      context_json = JSON.pretty_generate(json_hash)
+
+      Log::info("   [Stats] #{stats[:count]} contexts processed (Filtered out #{stats[:android]} android entries, #{stats[:nil]} nil contexts)")
+      Log::info(" - Save to file: #{file}")
+      File.open(file, "w") do |fh|
+        fh.write(context_json)
+      end
     end
 
   end
 
   module AndroidFormatter
-    def self.write_strings_xml(terms, file)
-      content = self.process_content(terms)
-      Log::info(" - Save to file: #{file}")
-      File.open(file, "w") do |fh|
-        fh.write(content)
-      end
-    end
 
-    # @param [Hash] terms   The json parsed terms exported by POEditor and sorted alphabetically
-    # @return [String]                  The reformatted content
-    def self.process_content(terms)
-      xml_builder = Builder::XmlMarkup.new(:indent => 4)
+    # Write the strings.xml output file
+    #
+    # @param [Hash] terms
+    #        The json parsed terms exported by POEditor and sorted alphabetically
+    # @param [String] file
+    #        The path to the file to write the content to
+    #
+    def self.write_strings_xml(terms, file)
+      xml_content = ""
+      xml_builder = Builder::XmlMarkup.new(:target => xml_content, :indent => 4)
       xml_builder.instruct!
       xml_builder.comment!("Exported from POEditor\n    #{Time.now}\n    see https://poeditor.com")
       xml_builder.resources {
@@ -272,6 +264,11 @@ module POEditor
           end
         end
       }
+      
+      Log::info(" - Save to file: #{file}")
+      File.open(file, "w") do |fh|
+        fh.write(xml_content)
+      end
     end
   end
 end

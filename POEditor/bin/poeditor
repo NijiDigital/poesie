@@ -45,28 +45,37 @@ OptionParser.new do |opts|
   opts.parse!
 end
 
-# Main
+### Main ###
+
 POEditor.exit_with_error('You need to specify your POEditor project identifier using --project option (see --help for more info)') if options[:project_id].nil?
 exporter = POEditor::Exporter.new(options[:api_token], options[:project_id])
 POEditor.exit_with_error('You need to specify your POEditor project language using --lang option (see --help for more info)') if options[:lang].nil?
+
+# iOS
 unless options[:localizable_strings].nil?
   Log::title('== iOS ==')
   exporter.run(options[:lang]) do |terms|
+    # Localizable.strings
     Log::subtitle("== Language #{options[:lang]} ==")
     POEditor::AppleFormatter::write_strings_file(terms, options[:localizable_strings])
 
+    # Localizable.stringsdict
     strings_dict_path = options[:localizable_strings].gsub(/\.strings$/,'.stringsdict')
     POEditor::AppleFormatter::write_stringsdict_file(terms, strings_dict_path)
 
+    # Context.json (if specified)
     if options[:context_file]
       Log::subtitle("== Context #{options[:context_file]} ==")
       POEditor::AppleFormatter::write_context_json(terms, options[:context_file])
     end
   end
 end
+
+# Android
 unless options[:strings_xml].nil?
   Log::title('== Android ==')
   exporter.run(langs) do |terms|
+    # Strings.xml
     Log::subtitle("== Language #{options[:lang]} ==")
     POEditor::AndroidFormatter::write_strings_xml(terms, options[:strings_xml])
   end
