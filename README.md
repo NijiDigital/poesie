@@ -1,23 +1,86 @@
 # POEditor
 
-Ce repository contient l'ensemble des **scripts**, **outils**, pages de **documentation** nécessaires à la **génération** des strings (wordings) `iOS` et `Android` :
+This repository contains a script to generate `iOS`' and `Android`'s localized strings files extracted from a [poeditor.com](https://poeditor.com) project:
 
-* `POEditor` ~> Le générateur de strings (wordings) **iOS** et **Android**
+Using [poeditor.com](https://poeditor.com), you will typically enter all your terms to translate, then all the translations for each language for those terms, using the web interface of the tool.
 
-> Cet outil permet de générer à partir des fichiers de strings exportés depuis `POEditor` les fichiers de strings **iOS** (`Localizable.strings` / `Localizable.stringsdict`) et **Android** (`strings.xml`), en opérant une opération de nettoyage des strings spécifiques à une des plateformes.
+This tool can then automate the extraction / export of those translations to generate `Localizable.strings` and `Localizable.stringsdict` files for iOS, and `strings.xml` files for Android.
 
----
+## Advantages
+
+Even though POEditor's web interface allows you to export the strings in those format already, the script has the following advantages:
+
+* It **automates the process**, which can be very welcome if you update your localized strings quite often (instead of having to download the file for each language and each platform, then move the downloaded files from your Downloads folder to the correct location in your project, etc)
+* It **post-processes** the exported files, including:
+  * Sorting the terms **alphabetically**
+  * **Filtering** out terms ending with `_ios` when exporting for Android, and filtering out terms ending with `_android` when exporting for iOS
+  * **Normalize the string placeholder** so you can use `%s` everywhere in your POEditor strings in the web interface — the script will automatically replace `%s` and `%n$s` with `%@` and `%n$@` when exporting to iOS, so no need to have different translations for those for each platform
+* Allows you to extract the context strings in a JSON file if you want to use them for whatever use case in your app
+
 
 ## Installation
 
-L'outil peut être invoqué en direct après ajout au `PATH` de votre environnement du répertoire `bin` contenu dans `POEditor`, ou en précisant le chemin complet vers le script Ruby exécutable `poeditor` contenu dans ce même répertoire `bin`.
+This project is written in Ruby.
 
-Plusieurs options de ligne de commande peuvent être utilisées lors de l'invocation de cet outil :
+Simply clone the project on you computer, then invoke it using its full path `<path/where/you/cloned/it>/POEditor/bin/poeditor`.
+
+You could also add the `<path/where/you/cloned/it>/POEditor/bin/` path to your `PATH` environment variable if you prefer.
+
+
+## Using POEditor properly
+
+### Add your terms in POEditor's web interface
+
+* If you don't have a project in POEditor, start by creating one.
+* Then add some terms to translate. You can also indicate for each term if it will have a plural form or not (using the "P" button in POEditor web interface)
+* Then add at least a language, and translate your terms for that language in the POEditor web interface
+
+Of course, only list in POEditor the strings that needs a translation (user-facing strings), not JSON keys or constants, etc!
+
+💡 **Tip**: When adding a string to translate, be sure it doesn't already exist and hasn't already been added by another teammate (maybe using a different key) for example, by searching the text to translate in the POEditor web interface. This is especially worth checking because POEditor is typically limiting the maximum number of terms by a quota depending on your plan, so better not duplicate those terms!
+
+
+### Naming your terms
+
+* Find a name for your term that is consistent with existing keys
+* As a convention, for Niji projects, we structure the name of terms in a reverse-dns hierarchical text, using `_` as a separator. For example `home_banner_text` and `home_weather_temperature` (use `_` and not `.` because `.` causes issues in Android)
+* If a key should only be exported for Android, use the `_android` suffix. If a key should only be exported for iOS, use the `_ios` suffix.
+
+### Using `%…` placeholders
+
+* For keys that use string placeholders, use `%s` and not `%@`. Android doesn't know about `%@` (which is an iOS/macOS-only placeholder) and `%s` placeholders will be translated to `%@` automatically by this script
+* Use positional placeholders like `%n$s`, instead of just `%s`, whenever possible.
+
+> **Note**
+> 
+> The `%n$s` syntax allows you to indicate the index of the parameter to use. This allows you to invert the order of the parameters in the translation, which can sometimes be needed for some languages (e.g. In English you'll use `%1$s's %2$d phones` to have "John's 3 phones", but in French you'll use `Les %2$d téléphones de %1$s` to have "Les 3 téléphones de John", where the number of phones comes before the person's name).
+> 
+> If you don't specify the `n$` position number (but only e.g. `%s`), the parameters will be consumed in order.
+> It's recommended to use the `n$` positional placeholders though, even if they are in order, so that the order is explict and not implicit.
+
+### Handling plurals
+
+There's an oddity in POEditor when handling plurals: for a term to be marked to support plurals, you must activate the "P" round button next to the term… which will then display a field to enter the name of the term… when used for the plural variants.
+
+I haven't seen any point of having a different term for the pluralized term and the singular term. Using a different name for the term and the plural term doesn't make sense to me.
+
+Therefore, and given how the script interprets those terms, for terms with plurals, you should **always use the same name for the "term" and the "plural term"** when declaring them in the POEditor web interface:
+
+![Plurals example](plurals_example.png)
+
+### Handling newlines
+
+* You can add newlines, either using actual newlines or using `\n`, in the translations in the web interface. Both (literal or escaped) should be interpreted and translated correctly by the script
+
+
+## Executing the script
+
+Multiple options can be used when invoking the tool from the commandline:
 
 ```
-➜ ✗ poeditor -h
+$ poeditor -h
 Usage: poeditor [options]
-    -t, --token API_TOKEN            Specify your POEditor API token
+    -t, --token API_TOKEN       Specify your POEditor API token
     -p, --project PROJECT_ID    Specify your POEditor project identifier
     -l, --lang LANGUAGE         Specify your POEditor project language
     -i, --ios PATH              Specify iOS Localizable.strings file path
@@ -27,117 +90,32 @@ Usage: poeditor [options]
     -v, --version               Show version
 ```
 
-## Processus d'utilisation
+* You'll typically always need to provide a token (`--token`) and a project ID (`--project`). Those can be found [here on the POEditor web interface](https://poeditor.com/account/api)
 
-Vous avez besoin d’un string **qui se traduit !!!** dans votre projet **iOS** et **Android** ?
+* You'll also always need to provide the language (`--lang`) you wish to extract and for which you want to generate the files. You can invoke the `poeditor` script multiple times, one for each language you need to extract, if needed.
 
-### 1) Existe-t-il déjà ?
-
-1) Regarder si la valeur (la traduction) n’existe pas déjà dans votre projet sous [POEditor](https://poeditor.com).
-
-* Si oui, utilisez la clé correspondante dans vos fichiers `Localizable.strings`,  `strings.xml`, `.storyboard`, `.xib` ou fichier source, et **c’est fini !!!**.
-* Si non, il faut ajouter un nouveau terme dans l'outil `POEditor`.
-
-> **NB:** Il est important de ne pas dupliquer des traductions similaires (avec des clés différentes) pour éviter de devoir traduire plusieurs fois les mêmes termes, et d'augmenter le quota **POEditor** du compte Niji de façon non justifiée.
-
-### 2) Ajout dans `POEditor`
-
-Se connecter sur [POEditor](https://poeditor.com) avec le compte suivant identifié à cette [page](http://redmine-niji/redmine/projects/niji-outils-transverses/wiki/Poeditor_compte). Ce compte est à utiliser pour tous les projets :
-
-* Login : **poeditor@niji.fr**
-* Password : **EDp12L!?**
-
-> **NB:** Seul ce compte permet d’ajouter des nouveaux termes
-
-### 3) Ajouter le nouveau terme
-
-* Utilisez le `_` comme séparateur
-* Trouver un nom de clé **cohérent** avec les clés existantes
-
-**Exemples :**
->
-> Si vous ajoutez une clé qui concerne le ou les magasin(s), nommez là
-> `shop_xxx_xxx`.
->
-> Si vous ajoutez un terme assez générique synonyme d'action comme **Appuyer**, nommez la clé `action_push` par exemple.
-
-* Suffixez par `_ios` ou `_android` toute clé qui n'est utilisée que pour une des 2 plateformes mais pas l'autre
-* Pour les clés qui contiennent un **format**: utilisez `%s` (ou `%n$s` où `n` est un chiffre) pour les chaînes de caractère, et non `%@`. Sur iOS, le `%s` (resp. `%1$s`) sera converti en `%@` (resp. `%1$@`) par le script. Cela permet d'utiliser la même chaîne avec format pour Android et iOS.
-
-> Rappel: la syntaxe `%n$s` permet d'indiquer l'index du paramètre à utiliser. Cela permet ainsi d'inverser l'ordre des paramètres dans la traduction (`%1$s's %2$d phones` en anglais donnera "John's 3 phones" alors que `Les %2$d téléphones de %1$s` en français donnera "Les 3 téléphones de John"). S'il n'est pas précisé (juste `%s`), les paramètres sont pris dans l'ordre dans lequel ils sont passés. _(Il est cependant conseillé d'utiliser `%n$s` et d'indiquer la position même s'il se trouve que les paramètres qui seront passés lors de la traduction sont déjà dans l'ordre, pour être explicite)_
-
-**Exemples :**
-
-```
-// iOS - Localizable.strings
-"credentials_message_confirm_ios" = "Vous allez recevoir un e-mail à l'adresse %1$s vous invitant à définir un nouveau code secret.\nMerci de consulter vos e-mails.";
-"trash_restore_documents" = "Confirmez-vous la restauration de cet élément ?";
-```
-
-```
-// iOS - Localizable.stringsdict
-<?xml version="1.0" encoding="UTF-8"?>
-<plist version="1.0">
-    <dict>
-        <key>trash_restore_documents_android</key>
-        <dict>
-            <key>NSStringLocalizedFormatKey</key>
-            <string>%#@format@</string>
-            <key>format</key>
-            <dict>
-                <key>NSStringFormatSpecTypeKey</key>
-                <string>NSStringPluralRuleType</string>
-                <key>NSStringFormatValueTypeKey</key>
-                <string>d</string>
-                <key>one</key>
-                <string>Confirmez-vous la restauration de cet élément ?</string>
-                <key>other</key>
-                <string>Confirmez-vous la restauration de ces %d éléments ?</string>
-            </dict>
-        </dict>
-    </dict>
-</plist>
-```
-
-// Android
-<string name="documents_add_date_android">"Le %1$s à %2$s"</string>
-<string name="home_upload_again_confirmation_document_android">"Votre document %1$s n'a pas pu être ajouté.\nVoulez-vous poursuivre l'ajout de ce document ?"</string>
-<plurals name="trash_restore_documents">
-    <item quantity="one">"Confirmez-vous la restauration de cet élément ?"</item>
-    <item quantity="other">"Confirmez-vous la restauration de ces %d éléments ?"</item>
-</plurals>
-```
-
-> **NB:** Il n'est pas nécessaire d'échapper sur Android les caractères spéciaux type `'`.
-
-### 4) Exécution du script
-
-Exécuter le script Ruby `poeditor` qui **génère** les fichiers de strings dans le projet **Xcode** et **Android Studio**.
+* Depending if you want to generate the localization files for Android (`strings.xml`) or iOS (`Localizable.strings` & `Localizable.stringsdict`), you'll use either `--ios PATH` or `--android PATH`. _(Note: for iOS, you give the path and name of the `Localizable.strings` file to generate, and the script will deduce itself the path for the `Localizable.stringsdict` to generate next to it)_
 
 **Exemples** :
 
 ```
-➜ ✗ poeditor -p 32644 -l fr -a /Users/KiKi/Documents/Dev/GitLab/LaPoste/Pass-Android/app/src/main/res/values/strings.xml
+$ poeditor -t abcd1234efab5678abcd1234efab5678 -p 12345 -l fr -a /Users/me/Documents/Dev/MyApp/app/src/main/res/values/strings.xml
 ```
 
 ```
-➜ ✗ poeditor -t c47665dfb4c65882a0f1059540e2524a -p 45344 -l fr -i /Users/KiKi/Documents/Dev/GitLab/Monoprix/Monoprix-iOS/Resources/Localizable.strings
+$ poeditor -t abcd1234efab5678abcd1234efab5678 -p 12345 -l fr -i /Users/me/Documents/Dev/MyApp/Resources/Localizable.strings
 ```
 
-> **NB:** Les identifiants de vos projets respectifs sont disponibles à l'adresse suivante [POEditor](https://poeditor.com/account/api).
 
-### 4) Utilisation de --context
+## Using the --context flag
 
-Exécuter le script Ruby `poeditor` avec l'option `--context FILE`, qui **génère** un fichier .json contenant toutes les entités comprenant un élément context.
-
-**Exemples** :
+When running the `poeditor` script using the `--context FILE` option, it will generate a JSON file at the provided path, containing all the terms for which you provided a "Context" (the "C" round button) in the POEditor web interface.
 
 ```
-➜ ✗ poeditor --token "..." --project "..." --lang fr --ios .../localizable.strings --context .../context.json
+$ poeditor --token "..." --project "..." --lang fr --ios .../localizable.strings --context .../context.json
 ```
 
-Vous pouvez ensuite utiliser le résultat du fichier `context.json` obtenu comme vous le souhaitez, voici par exemple quelques idées :
+This can be useful:
 
-* Intégrer le fichier `context.json` dans votre projet Xcode, et utilise `JSONSerialization` pour le parser dans votre code Swift et vous en servir dans votre code
-* Utiliser un script ruby simple pour générer du code Swift d'après ce fichier JSON. Un exemple est disponible dans `exemples/gen-context.rb`, et ce script est invoqué dans l'exemple `exemples/poeditor+context.sh`.
-* Utiliser un outil de templating comme [Liquid](https://github.com/Shopify/liquid). Un exemple est disponible dans `exemples/gen-context-with-liquid.rb`
+* Either to use that JSON file directly in your project to do whatever you want with the contexts (e.g. parsing the JSON file at runtime using `JSONSerialization`, and use it as you please)
+* Or use that JSON file with a template engine (like [Liquid](https://github.com/Shopify/liquid)) to generate code specific to your needs. See the example script in `examples/gen-context-with-liquid.rb`.

@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+# Load the Liquid and JSON gems
 begin
   require 'liquid'
 rescue LoadError => e
@@ -7,14 +8,17 @@ rescue LoadError => e
 end
 require 'json'
 
+# Ensure we have enough argument given when invoking this script
 unless ARGV.count >= 2
   puts "Usage: #{File.basename(__FILE__)} JSON_FILE LIQUID_TEMPLATE_FILE"
   exit 1
 end
 
+# Parse the input JSON
 json_string = File.read(ARGV[0])
 json = JSON.parse(json_string)
 
+# Read the template file
 template_string = File.read(ARGV[1])
 
 # Declare some custom Liquid Filters used by the template, then render it
@@ -30,5 +34,6 @@ module CustomFilters
   end
 end
 
+# Render the template using the JSON as a context/input
 template = Liquid::Template.parse(template_string)
 puts template.render(json, :filters => [CustomFilters]).gsub(/^ +$\n/,'')
