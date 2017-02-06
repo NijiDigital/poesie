@@ -4,7 +4,7 @@ Ce repository contient l'ensemble des **scripts**, **outils**, pages de **docume
 
 * `POEditor` ~> Le générateur de strings (wordings) **iOS** et **Android**
 
-> Cet outil permet de générer à partir des fichiers de strings exportés depuis `POEditor` les fichiers de strings **iOS** (`Localizable.strings`) et **Android** (`strings.xml`), en opérant une opération de nettoyage des strings spécifiques à une des plateformes.
+> Cet outil permet de générer à partir des fichiers de strings exportés depuis `POEditor` les fichiers de strings **iOS** (`Localizable.strings` / `Localizable.stringsdict`) et **Android** (`strings.xml`), en opérant une opération de nettoyage des strings spécifiques à une des plateformes.
 
 ---
 
@@ -38,7 +38,7 @@ Vous avez besoin d’un string **qui se traduit !!!** dans votre projet **iOS** 
 * Si oui, utilisez la clé correspondante dans vos fichiers `Localizable.strings`,  `strings.xml`, `.storyboard`, `.xib` ou fichier source, et **c’est fini !!!**.
 * Si non, il faut ajouter un nouveau terme dans l'outil `POEditor`.
 
-> **NB:** Il est important de ne pas dupliquer des traductions similaires (avec des clés différentes) pour éviter de devoir traduire plusieurs fois les mêmes termes, et d'augmenter le quota **POEditor** du compte Niji de façon non justifié.
+> **NB:** Il est important de ne pas dupliquer des traductions similaires (avec des clés différentes) pour éviter de devoir traduire plusieurs fois les mêmes termes, et d'augmenter le quota **POEditor** du compte Niji de façon non justifiée.
 
 ### 2) Ajout dans `POEditor`
 
@@ -61,27 +61,53 @@ Se connecter sur [POEditor](https://poeditor.com) avec le compte suivant identif
 >
 > Si vous ajoutez un terme assez générique synonyme d'action comme **Appuyer**, nommez la clé `action_push` par exemple.
 
-* Suffixez par `_ios`, `_ios(+)` ou `_android` toute clé d’un terme qui est un **pluriel**.
-* Pour les clés qui contiennent un **format**: utilisez `%s` (ou `%n$s` où `n` est un chiffre) pour les chaînes de caractère, et non `%@`. Sur iOS, le `%s` (resp. `%1$s`) sera converti en `%@` (resp. `%1$@`). Cela permet d'utiliser la même chaîne avec format pour Android et iOS.
+* Suffixez par `_ios` ou `_android` toute clé qui n'est utilisée que pour une des 2 plateformes mais pas l'autre
+* Pour les clés qui contiennent un **format**: utilisez `%s` (ou `%n$s` où `n` est un chiffre) pour les chaînes de caractère, et non `%@`. Sur iOS, le `%s` (resp. `%1$s`) sera converti en `%@` (resp. `%1$@`) par le script. Cela permet d'utiliser la même chaîne avec format pour Android et iOS.
 
 > Rappel: la syntaxe `%n$s` permet d'indiquer l'index du paramètre à utiliser. Cela permet ainsi d'inverser l'ordre des paramètres dans la traduction (`%1$s's %2$d phones` en anglais donnera "John's 3 phones" alors que `Les %2$d téléphones de %1$s` en français donnera "Les 3 téléphones de John"). S'il n'est pas précisé (juste `%s`), les paramètres sont pris dans l'ordre dans lequel ils sont passés. _(Il est cependant conseillé d'utiliser `%n$s` et d'indiquer la position même s'il se trouve que les paramètres qui seront passés lors de la traduction sont déjà dans l'ordre, pour être explicite)_
 
 **Exemples :**
 
 ```
-// iOS
+// iOS - Localizable.strings
 "credentials_message_confirm_ios" = "Vous allez recevoir un e-mail à l'adresse %1$s vous invitant à définir un nouveau code secret.\nMerci de consulter vos e-mails.";
-"document_add_gallery_selected_text_%i_ios" = "%i sélectionnée";
-"document_add_gallery_selected_text_%i_ios(+)" = "%i sélectionnées »;
+"trash_restore_documents" = "Confirmez-vous la restauration de cet élément ?";
+```
+
+```
+// iOS - Localizable.stringsdict
+<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0">
+    <dict>
+        <key>trash_restore_documents_android</key>
+        <dict>
+            <key>NSStringLocalizedFormatKey</key>
+            <string>%#@format@</string>
+            <key>format</key>
+            <dict>
+                <key>NSStringFormatSpecTypeKey</key>
+                <string>NSStringPluralRuleType</string>
+                <key>NSStringFormatValueTypeKey</key>
+                <string>d</string>
+                <key>one</key>
+                <string>Confirmez-vous la restauration de cet élément ?</string>
+                <key>other</key>
+                <string>Confirmez-vous la restauration de ces %d éléments ?</string>
+            </dict>
+        </dict>
+    </dict>
+</plist>
+```
 
 // Android
 <string name="documents_add_date_android">"Le %1$s à %2$s"</string>
 <string name="home_upload_again_confirmation_document_android">"Votre document %1$s n'a pas pu être ajouté.\nVoulez-vous poursuivre l'ajout de ce document ?"</string>
-<plurals name="trash_restore_documents_android">
+<plurals name="trash_restore_documents">
     <item quantity="one">"Confirmez-vous la restauration de cet élément ?"</item>
     <item quantity="other">"Confirmez-vous la restauration de ces %d éléments ?"</item>
 </plurals>
 ```
+
 > **NB:** Il n'est pas nécessaire d'échapper sur Android les caractères spéciaux type `'`.
 
 ### 4) Exécution du script
