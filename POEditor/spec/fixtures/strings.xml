@@ -29,4 +29,8 @@ ainsi que des chevrons et un saut de ligne"</item>
         <item quantity="other">"C'est plus &lt;compliqué&gt; avec %d accents &amp; %d apostrophes
 ainsi que des chevrons et des sauts de ligne"</item>
     </plurals>
+    <plurals name="plural4_plural_term">
+        <item quantity="one">"Vous avez\nun seul\nplural4"</item>
+        <item quantity="other">"Vous avez\n%d plural4"</item>
+    </plurals>
 </resources>

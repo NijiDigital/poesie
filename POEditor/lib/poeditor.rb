@@ -163,6 +163,7 @@ module POEditor
                   definition.each do |(quantity, text)|
                     text = text
                               .gsub("\u2028", '') # Sometimes inserted by the POEditor exporter
+                              .gsub('\n', "\n") # Replace '\n' with actual CRLF
                               .gsub(/%(\d+\$)?s/, '%\1@') # replace %s with %@ for iOS
                     format_node.key(quantity)
                     format_node.string(text)

@@ -55,5 +55,24 @@ ainsi que des chevrons et un saut de ligne</string>
 ainsi que des chevrons et des sauts de ligne</string>
             </dict>
         </dict>
+        <key>plural4_plural_term</key>
+        <dict>
+            <key>NSStringLocalizedFormatKey</key>
+            <string>%#@format@</string>
+            <key>format</key>
+            <dict>
+                <key>NSStringFormatSpecTypeKey</key>
+                <string>NSStringPluralRuleType</string>
+                <key>NSStringFormatValueTypeKey</key>
+                <string>d</string>
+                <key>one</key>
+                <string>Vous avez
+un seul
+plural4</string>
+                <key>other</key>
+                <string>Vous avez
+%d plural4</string>
+            </dict>
+        </dict>
     </dict>
 </plist>
