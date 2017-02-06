@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <plist version="1.0">
     <dict>
         <key>plural1_plural_term</key>
@@ -27,9 +28,13 @@
                 <key>NSStringFormatValueTypeKey</key>
                 <string>d</string>
                 <key>one</key>
-                <string>Vous avez\nun seul\nobjet "plural2"</string>
+                <string>Vous avez
+un seul
+objet "plural2"</string>
                 <key>other</key>
-                <string>Vous avez\n%d\nobjets "plural2"</string>
+                <string>Vous avez
+%d
+objets "plural2"</string>
             </dict>
         </dict>
         <key>plural3_plural_term</key>
@@ -43,9 +48,11 @@
                 <key>NSStringFormatValueTypeKey</key>
                 <string>d</string>
                 <key>one</key>
-                <string>C'est plus <compliqué> avec un accent & une apostrophe\nainsi que des chevrons et un saut de ligne</string>
+                <string>C'est plus &lt;compliqué&gt; avec un accent &amp; une apostrophe
+ainsi que des chevrons et un saut de ligne</string>
                 <key>other</key>
-                <string>C'est plus <compliqué> avec %d accents & %d apostrophes\nainsi que des chevrons et des sauts de ligne</string>
+                <string>C'est plus &lt;compliqué&gt; avec %d accents &amp; %d apostrophes
+ainsi que des chevrons et des sauts de ligne</string>
             </dict>
         </dict>
     </dict>

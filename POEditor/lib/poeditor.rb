@@ -103,7 +103,7 @@ module POEditor
 
         definition = definition
                     .gsub("\u2028", '') # Sometimes inserted by the POEditor exporter
-                    .gsub("\n", "\\n") # Replace actual CRLF with '\n'
+                    .gsub("\n", '\n') # Replace actual CRLF with '\n'
                     .gsub('"', '\\"') # Escape quotes
                     .gsub(/%(\d+\$)?s/, '%\1@') # replace %s with %@ for iOS
         out_lines << %Q(// CONTEXT: #{context.gsub("\n", '\n')}) unless context.empty?
@@ -128,52 +128,53 @@ module POEditor
     #        The path of the file to write
     #
     def self.write_stringsdict_file(terms, file)
-      out_lines = %Q(<plist version="1.0">\n    <dict>\n)
       stats = { :android => 0, :nil => 0, :count => 0 }
 
-      terms.each do |term|
-        (term, term_plural, definition) = ['term', 'term_plural', 'definition'].map { |k| term[k] }
-
-        # Filter terms and update stats
-        next if (term.nil? || term.empty? || definition.nil?) && stats[:nil] += 1
-        next if (term =~ /_android$/) && stats[:android] += 1 # Remove android-specific strings
-        next unless definition.is_a? Hash
-        stats[:count] += 1
-        
-        # @todo: Use Builder::XmlMarkup.new to build the XML instead
-        # (see AndroidFormatter below for inspiration)
-        key = term_plural || term
-        out_lines += <<-DICT.gsub(/^[ \t]*\| /,'')
-        |         <key>#{key}</key>
-        |         <dict>
-        |             <key>NSStringLocalizedFormatKey</key>
-        |             <string>%#\@format@</string>
-        |             <key>format</key>
-        |             <dict>
-        |                 <key>NSStringFormatSpecTypeKey</key>
-        |                 <string>NSStringPluralRuleType</string>
-        |                 <key>NSStringFormatValueTypeKey</key>
-        |                 <string>d</string>
-        DICT
-        definition.each do |(quantity, text)|
-          text = text
-                    .gsub("\u2028", '') # Sometimes inserted by the POEditor exporter
-                    .gsub("\n", "\\n") # Replace actual CRLF with '\n'
-                    .gsub(/%(\d+\$)?s/, '%\1@') # replace %s with %@ for iOS
-          out_lines << "                <key>#{quantity}</key>\n"
-          out_lines << "                <string>#{text}</string>\n"
-        end
-        out_lines += <<-DICT.gsub(/^[ \t]*\| /,'')
-        |             </dict>
-        |         </dict>
-        DICT
-      end
-
-      out_lines += %Q(    </dict>\n</plist>\n)
-      # @todo Log stats to stdout, like with other methods
-
       Log::info(" - Save to file: #{file}")
-      File.write(file, out_lines)
+      fh = File.open(file, "w")
+      begin
+        xml_builder = Builder::XmlMarkup.new(:target => fh, :indent => 4)
+        xml_builder.instruct!
+        xml_builder.plist(:version => '1.0') do |plist_node|
+          plist_node.dict do |root_node|
+            terms.each do |term|
+              (term, term_plural, definition) = ['term', 'term_plural', 'definition'].map { |k| term[k] }
+
+              # Filter terms and update stats
+              next if (term.nil? || term.empty? || definition.nil?) && stats[:nil] += 1
+              next if (term =~ /_android$/) && stats[:android] += 1 # Remove android-specific strings
+              next unless definition.is_a? Hash
+              stats[:count] += 1
+              
+              key = term_plural || term
+
+              
+              root_node.key(key)
+              root_node.dict do |dict_node|
+                dict_node.key('NSStringLocalizedFormatKey')
+                dict_node.string('%#@format@')
+                dict_node.key('format')
+                dict_node.dict do |format_node|
+                  format_node.key('NSStringFormatSpecTypeKey')
+                  format_node.string('NSStringPluralRuleType')
+                  format_node.key('NSStringFormatValueTypeKey')
+                  format_node.string('d')
+
+                  definition.each do |(quantity, text)|
+                    text = text
+                              .gsub("\u2028", '') # Sometimes inserted by the POEditor exporter
+                              .gsub(/%(\d+\$)?s/, '%\1@') # replace %s with %@ for iOS
+                    format_node.key(quantity)
+                    format_node.string(text)
+                  end
+                end
+              end
+            end
+          end
+        end
+      ensure
+        fh.close
+      end
     end
 
     # Write the JSON output file containing all context keys
@@ -231,36 +232,34 @@ module POEditor
     #        The path to the file to write the content to
     #
     def self.write_strings_xml(terms, file)
-      xml_content = ""
-      xml_builder = Builder::XmlMarkup.new(:target => xml_content, :indent => 4)
-      xml_builder.instruct!
-      xml_builder.comment!("Exported from POEditor\n    #{Time.now}\n    see https://poeditor.com")
-      xml_builder.resources {
-          |resources|
-        terms.each do |term|
-          (term, definition, plurals, comment, context) = ['term', 'definition', 'term_plural', 'comment', 'context'].map { |k| term[k] }
-          # Skip ugly cases if POEditor is buggy for some entries
-          next if term.nil? || term.empty? || definition.nil?
-          next if term =~ /_ios$/
-          xml_builder.comment!(context) unless context.empty?
-          if plurals.empty?
-            definition = definition.gsub('"', '\\"')
-            resources.string("\"#{definition}\"", :name => term)
-          else
-            resources.plurals(:name => plurals) {
-                |plural|
-              definition.each do |plural_quantity, plural_value|
-                plural_value = plural_value.gsub('"', '\\"')
-                plural.item("\"#{plural_value}\"", :quantity => plural_quantity)
+      Log::info(" - Save to file: #{file}")
+      fh = File.open(file, "w")
+      begin
+        xml_builder = Builder::XmlMarkup.new(:target => fh, :indent => 4)
+        xml_builder.instruct!
+        xml_builder.comment!("Exported from POEditor\n    #{Time.now}\n    see https://poeditor.com")
+        xml_builder.resources do |resources_node|
+          terms.each do |term|
+            (term, definition, plurals, comment, context) = ['term', 'definition', 'term_plural', 'comment', 'context'].map { |k| term[k] }
+            # Skip ugly cases if POEditor is buggy for some entries
+            next if term.nil? || term.empty? || definition.nil?
+            next if term =~ /_ios$/
+            xml_builder.comment!(context) unless context.empty?
+            if plurals.empty?
+              definition = definition.gsub('"', '\\"')
+              resources_node.string("\"#{definition}\"", :name => term)
+            else
+              resources_node.plurals(:name => plurals) do |plurals_node|
+                definition.each do |plural_quantity, plural_value|
+                  plural_value = plural_value.gsub('"', '\\"')
+                  plurals_node.item("\"#{plural_value}\"", :quantity => plural_quantity)
+                end
               end
-            }
+            end
           end
         end
-      }
-      
-      Log::info(" - Save to file: #{file}")
-      File.open(file, "w") do |fh|
-        fh.write(xml_content)
+      ensure
+        fh.close
       end
     end
   end
