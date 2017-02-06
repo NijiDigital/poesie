@@ -21,7 +21,7 @@ module POEditor
       @project_id = project_id
     end
 
-    # @return [String]   The list of languages to export and associated files to save the result to
+    # @return [String]   The language to export
     def run(lang)
         Log::info(' - Generating export...')
         uri = generate_export_uri(lang)
@@ -62,7 +62,7 @@ module POEditor
     # @param [String] file
     #        The path of the file to write
     #
-    def self.write_content(terms, file)
+    def self.write_strings_file(terms, file)
 
       content = self.process_content(terms)
       Log::info(" - Save to file: #{file}")
@@ -79,8 +79,7 @@ module POEditor
     # @param [String] file
     #        The path of the file to write
     #
-    def self.write_context(terms, file)
-
+    def self.write_context_json(terms, file)
       context_hash = self.process_context(terms)
       context_json = JSON.pretty_generate(context_hash)
       Log::info(" - Save to file: #{file}")
@@ -92,7 +91,7 @@ module POEditor
 
     # @todo Split the method in two, like with other methods
     # @todo Add method parameters documentation
-    def self.write_stringsdict(terms, file)
+    def self.write_stringsdict_file(terms, file)
       out_lines = %Q(<plist version="1.0">\n    <dict>\n)
       # @todo: Use a "stats" hash instead, like with the other methods
       count = 0
@@ -237,6 +236,13 @@ module POEditor
   end
 
   module AndroidFormatter
+    def self.write_strings_xml(terms, file)
+      content = self.process_content(terms)
+      Log::info(" - Save to file: #{file}")
+      File.open(file, "w") do |fh|
+        fh.write(content)
+      end
+    end
 
     # @param [Hash] terms   The json parsed terms exported by POEditor and sorted alphabetically
     # @return [String]                  The reformatted content

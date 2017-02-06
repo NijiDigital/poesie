@@ -1,0 +1,21 @@
+{
+  "date": "<<<STUBBED_DATE_TIME>>>",
+  "contexts": [
+    {
+      "term": "singular1",
+      "context": "context1"
+    },
+    {
+      "term": "plural1",
+      "context": "plural1ctx"
+    },
+    {
+      "term": "plural2",
+      "context": "plural2ctx"
+    },
+    {
+      "term": "context1",
+      "context": "This is some context"
+    }
+  ]
+}

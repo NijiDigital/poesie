@@ -1,0 +1,52 @@
+<plist version="1.0">
+    <dict>
+        <key>plural1_plural_term</key>
+        <dict>
+            <key>NSStringLocalizedFormatKey</key>
+            <string>%#@format@</string>
+            <key>format</key>
+            <dict>
+                <key>NSStringFormatSpecTypeKey</key>
+                <string>NSStringPluralRuleType</string>
+                <key>NSStringFormatValueTypeKey</key>
+                <string>d</string>
+                <key>one</key>
+                <string>Vous avez un seul plural1 objet</string>
+                <key>other</key>
+                <string>Vous avez %d plural1 objets</string>
+            </dict>
+        </dict>
+        <key>plural2_plural_term</key>
+        <dict>
+            <key>NSStringLocalizedFormatKey</key>
+            <string>%#@format@</string>
+            <key>format</key>
+            <dict>
+                <key>NSStringFormatSpecTypeKey</key>
+                <string>NSStringPluralRuleType</string>
+                <key>NSStringFormatValueTypeKey</key>
+                <string>d</string>
+                <key>one</key>
+                <string>Vous avez\nun seul\nobjet "plural2"</string>
+                <key>other</key>
+                <string>Vous avez\n%d\nobjets "plural2"</string>
+            </dict>
+        </dict>
+        <key>plural3_plural_term</key>
+        <dict>
+            <key>NSStringLocalizedFormatKey</key>
+            <string>%#@format@</string>
+            <key>format</key>
+            <dict>
+                <key>NSStringFormatSpecTypeKey</key>
+                <string>NSStringPluralRuleType</string>
+                <key>NSStringFormatValueTypeKey</key>
+                <string>d</string>
+                <key>one</key>
+                <string>C'est plus <compliqué> avec un accent & une apostrophe\nainsi que des chevrons et un saut de ligne</string>
+                <key>other</key>
+                <string>C'est plus <compliqué> avec %d accents & %d apostrophes\nainsi que des chevrons et des sauts de ligne</string>
+            </dict>
+        </dict>
+    </dict>
+</plist>
