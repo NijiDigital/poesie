@@ -83,11 +83,9 @@ module POEditor
       terms.each do |term|
         (term, definition, comment, context) = ['term', 'definition', 'comment', 'context'].map { |k| term[k] }
 
-        # Skip ugly cases if POEditor is buggy for some entries
-        if term.nil? || term.empty? || definition.nil? || definition.empty? ; stats[:nil] += 1; next; end
-        # Remove android-specific strings
-        if term =~ /_android$/; stats[:android] += 1; next; end
-        # Count
+        # Filter terms and update stats
+        next if (term.nil? || term.empty? || definition.nil? || definition.empty?) && stats[:nil] += 1
+        next if (term =~ /_android$/) && stats[:android] += 1 # Remove android-specific strings
         stats[:count] += 1
 
         # Generate MARK from prefixes
@@ -97,7 +95,8 @@ module POEditor
           mark = last_prefix[0].upcase + last_prefix[1..-1].downcase
           out_lines += ['', '/'*80, "// MARK: #{mark}"]
         end
-        # Escape some chars
+
+        # If plural, use the text for the "one" (singular) entry
         if definition.is_a? Hash
           definition = definition["one"]
         end
@@ -130,17 +129,17 @@ module POEditor
     #
     def self.write_stringsdict_file(terms, file)
       out_lines = %Q(<plist version="1.0">\n    <dict>\n)
-      # @todo: Use a "stats" hash instead, like with the other methods
-      count = 0
+      stats = { :android => 0, :nil => 0, :count => 0 }
 
       terms.each do |term|
         (term, term_plural, definition) = ['term', 'term_plural', 'definition'].map { |k| term[k] }
 
-        # @todo: Fill the stats hash when filtering entries
-        next if term.nil? || term.empty? || definition.nil?
-        next if term =~ /_android$/
+        # Filter terms and update stats
+        next if (term.nil? || term.empty? || definition.nil?) && stats[:nil] += 1
+        next if (term =~ /_android$/) && stats[:android] += 1 # Remove android-specific strings
         next unless definition.is_a? Hash
-
+        stats[:count] += 1
+        
         # @todo: Use Builder::XmlMarkup.new to build the XML instead
         # (see AndroidFormatter below for inspiration)
         key = term_plural || term
@@ -168,11 +167,7 @@ module POEditor
         |             </dict>
         |         </dict>
         DICT
-        count += 1
       end
-
-      # Maybe still generate the output file even if it's empty, so it can be added to the Xcode project anyway
-      return if count == 0
 
       out_lines += %Q(    </dict>\n</plist>\n)
       # @todo Log stats to stdout, like with other methods
@@ -198,11 +193,9 @@ module POEditor
       terms.each do |term|
         (term, definition, comment, context) = ['term', 'definition', 'comment', 'context'].map { |k| term[k] }
 
-        # Skip ugly cases if POEditor is buggy for some entries
-        if term.nil? || term.empty? || context.nil? || context.empty? ; stats[:nil] += 1; next; end
-        # Remove android-specific strings
-        if term =~ /_android$/; stats[:android] += 1; next; end
-        # Count
+        # Filter terms and update stats
+        next if (term.nil? || term.empty? || context.nil? || context.empty?) && stats[:nil] += 1
+        next if (term =~ /_android$/) && stats[:android] += 1 # Remove android-specific strings
         stats[:count] += 1
 
         # Escape some chars
