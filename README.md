@@ -2,6 +2,8 @@
 
 Poesie is the **POE**ditor **S**tring **I**nternationalization **E**xtractor.
 
+![Poesie Logo](logo.png)
+
 This repository contains a script to generate `iOS`' and `Android`'s localized strings files extracted from a [poeditor.com](https://poeditor.com) project:
 
 Using [poeditor.com](https://poeditor.com), you will typically enter all your terms to translate, then all the translations for each language for those terms, using the web interface of the tool.
