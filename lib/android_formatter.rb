@@ -9,8 +9,10 @@ module Poesie
     #        The json parsed terms exported by POEditor and sorted alphabetically
     # @param [String] file
     #        The path to the file to write the content to
+    # @param [Hash<String,String>] replacements
+    #        The list of replacements to apply to the translations
     #
-    def self.write_strings_xml(terms, file)
+    def self.write_strings_xml(terms, file, replacements = nil)
       Log::info(" - Save to file: #{file}")
       fh = File.open(file, "w")
       begin
@@ -25,12 +27,12 @@ module Poesie
             next if term =~ /_ios$/
             xml_builder.comment!(context) unless context.empty?
             if plurals.empty?
-              definition = definition.gsub('"', '\\"')
+              definition = Poesie::process(definition, replacements).gsub('"', '\\"')
               resources_node.string("\"#{definition}\"", :name => term)
             else
               resources_node.plurals(:name => plurals) do |plurals_node|
                 definition.each do |plural_quantity, plural_value|
-                  plural_value = plural_value.gsub('"', '\\"')
+                  plural_value = Poesie::process(plural_value, replacements).gsub('"', '\\"')
                   plurals_node.item("\"#{plural_value}\"", :quantity => plural_quantity)
                 end
               end

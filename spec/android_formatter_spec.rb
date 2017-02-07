@@ -19,4 +19,14 @@ describe Poesie::AndroidFormatter do
 		end
 	end
 
+	it "generates proper strings.xml file with replacements" do
+		Dir.mktmpdir do |dir|
+			path = dir + '/Localizable.strings'
+			replacements = { "o" => "0", "avez" => "possédez" }
+			stub_time()
+			Poesie::AndroidFormatter::write_strings_xml(terms, path, replacements)
+			expect(File.exist?(path)).to eq(true)
+			expect(File.read(path)).to eq(fixture('strings-replaced.xml'))
+		end
+	end
 end

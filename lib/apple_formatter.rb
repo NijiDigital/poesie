@@ -9,8 +9,10 @@ module Poesie
     #        JSON returned by the POEditor API
     # @param [String] file
     #        The path of the file to write
+    # @param [Hash<String,String>] replacements
+    #        The list of replacements to apply to the translations
     #
-    def self.write_strings_file(terms, file)
+    def self.write_strings_file(terms, file, replacements = nil)
       out_lines = ['/'+'*'*79, ' * Exported from POEditor - https://poeditor.com', " * #{Time.now}", ' '+'*'*79+'/', '']
       last_prefix = ''
       stats = { :android => 0, :nil => 0, :count => 0 }
@@ -36,7 +38,7 @@ module Poesie
           definition = definition["one"]
         end
 
-        definition = definition
+        definition = Poesie::process(definition, replacements)
                     .gsub("\u2028", '') # Sometimes inserted by the POEditor exporter
                     .gsub("\n", '\n') # Replace actual CRLF with '\n'
                     .gsub('"', '\\"') # Escape quotes
@@ -61,8 +63,10 @@ module Poesie
     #        JSON returned by the POEditor API
     # @param [String] file
     #        The path of the file to write
+    # @param [Hash<String,String>] replacements
+    #        The list of replacements to apply to the translations
     #
-    def self.write_stringsdict_file(terms, file)
+    def self.write_stringsdict_file(terms, file, replacements = nil)
       stats = { :android => 0, :nil => 0, :count => 0 }
 
       Log::info(" - Save to file: #{file}")
@@ -96,7 +100,7 @@ module Poesie
                   format_node.string('d')
 
                   definition.each do |(quantity, text)|
-                    text = text
+                    text = Poesie::process(text, replacements)
                               .gsub("\u2028", '') # Sometimes inserted by the POEditor exporter
                               .gsub('\n', "\n") # Replace '\n' with actual CRLF
                               .gsub(/%(\d+\$)?s/, '%\1@') # replace %s with %@ for iOS

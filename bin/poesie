@@ -10,6 +10,7 @@ end
 
 begin
   require 'optparse'
+  require 'yaml'
   require 'poesie'
 rescue LoadError => e
   abort 'error: missing some dependencies for poesie. Be sure to install it using `gem install` or to run `bundle installl` to install dependencies - ' + e.message
@@ -21,7 +22,8 @@ options = {
     :lang => nil,
     :localizable_strings => nil,
     :strings_xml => nil,
-    :context_file => nil
+    :context_file => nil,
+    :replacements => nil
 }
 
 opts = OptionParser.new do |opts|
@@ -43,6 +45,17 @@ opts = OptionParser.new do |opts|
   end
   opts.on('-c PATH', '--context PATH', %q(Path of the *.json file to generate for contexts)) do |path|
     options[:context_file] = path
+  end
+  opts.on('-r FILE', '--replacements FILE', %q(Path to a YAML file listing all replacements)) do |path|
+    Poesie.exit_with_error("The replacements file #{path} was not found") unless File.exists?(path)  
+    begin
+      dict = YAML.load_file(path)
+    rescue Psych::SyntaxError => e
+      Poesie.exit_with_error("Invalid YAML file #{e.message}")  
+    end
+    valid = dict.keys.all? { |k| k.is_a?(String) } && dict.values.all? { |k| k.is_a?(String) }
+    Poesie.exit_with_error("The provided replacements file #{path} should only contain a Dictionary with String keys and values") unless valid
+    options[:replacements] = dict
   end
   opts.on_tail('-h', '--help', %q(Show this message)) { puts opts; exit 1 }
   opts.on_tail('-v', '--version', 'Show version') { puts Poesie::VERSION; exit }
@@ -68,11 +81,11 @@ unless options[:localizable_strings].nil?
   exporter.run(options[:lang]) do |terms|
     # Localizable.strings
     Log::subtitle("== Language #{options[:lang]} ==")
-    Poesie::AppleFormatter::write_strings_file(terms, options[:localizable_strings])
+    Poesie::AppleFormatter::write_strings_file(terms, options[:localizable_strings], options[:replacements])
 
     # Localizable.stringsdict
     strings_dict_path = options[:localizable_strings].gsub(/\.strings$/,'.stringsdict')
-    Poesie::AppleFormatter::write_stringsdict_file(terms, strings_dict_path)
+    Poesie::AppleFormatter::write_stringsdict_file(terms, strings_dict_path, options[:replacements])
 
     # Context.json (if specified)
     if options[:context_file]
@@ -88,6 +101,6 @@ unless options[:strings_xml].nil?
   exporter.run(options[:lang]) do |terms|
     # Strings.xml
     Log::subtitle("== Language #{options[:lang]} ==")
-    Poesie::AndroidFormatter::write_strings_xml(terms, options[:strings_xml])
+    Poesie::AndroidFormatter::write_strings_xml(terms, options[:strings_xml], options[:replacements])
   end
 end

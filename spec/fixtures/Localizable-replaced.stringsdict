@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0">
+    <dict>
+        <key>plural1_plural_term</key>
+        <dict>
+            <key>NSStringLocalizedFormatKey</key>
+            <string>%#@format@</string>
+            <key>format</key>
+            <dict>
+                <key>NSStringFormatSpecTypeKey</key>
+                <string>NSStringPluralRuleType</string>
+                <key>NSStringFormatValueTypeKey</key>
+                <string>d</string>
+                <key>one</key>
+                <string>V0us possédez un seul plural1 0bjet</string>
+                <key>other</key>
+                <string>V0us possédez %d plural1 0bjets</string>
+            </dict>
+        </dict>
+        <key>plural2_plural_term</key>
+        <dict>
+            <key>NSStringLocalizedFormatKey</key>
+            <string>%#@format@</string>
+            <key>format</key>
+            <dict>
+                <key>NSStringFormatSpecTypeKey</key>
+                <string>NSStringPluralRuleType</string>
+                <key>NSStringFormatValueTypeKey</key>
+                <string>d</string>
+                <key>one</key>
+                <string>V0us possédez
+un seul
+0bjet "plural2"</string>
+                <key>other</key>
+                <string>V0us possédez
+%d
+0bjets "plural2"</string>
+            </dict>
+        </dict>
+        <key>plural3_plural_term</key>
+        <dict>
+            <key>NSStringLocalizedFormatKey</key>
+            <string>%#@format@</string>
+            <key>format</key>
+            <dict>
+                <key>NSStringFormatSpecTypeKey</key>
+                <string>NSStringPluralRuleType</string>
+                <key>NSStringFormatValueTypeKey</key>
+                <string>d</string>
+                <key>one</key>
+                <string>C'est plus &lt;c0mpliqué&gt; avec un accent &amp; une ap0str0phe
+ainsi que des chevr0ns et un saut de ligne</string>
+                <key>other</key>
+                <string>C'est plus &lt;c0mpliqué&gt; avec %d accents &amp; %d ap0str0phes
+ainsi que des chevr0ns et des sauts de ligne</string>
+            </dict>
+        </dict>
+        <key>plural4_plural_term</key>
+        <dict>
+            <key>NSStringLocalizedFormatKey</key>
+            <string>%#@format@</string>
+            <key>format</key>
+            <dict>
+                <key>NSStringFormatSpecTypeKey</key>
+                <string>NSStringPluralRuleType</string>
+                <key>NSStringFormatValueTypeKey</key>
+                <string>d</string>
+                <key>one</key>
+                <string>V0us possédez
+un seul
+plural4</string>
+                <key>other</key>
+                <string>V0us possédez
+%d plural4</string>
+            </dict>
+        </dict>
+    </dict>
+</plist>

@@ -100,14 +100,15 @@ Multiple options can be used when invoking the tool from the commandline:
 ```
 $ poesie -h
 Usage: poesie [options]
-    -t, --token API_TOKEN       Specify your POEditor API token
-    -p, --project PROJECT_ID    Specify your POEditor project identifier
-    -l, --lang LANGUAGE         Specify your POEditor project language
-    -i, --ios PATH              Specify iOS Localizable.strings file path
-    -a, --android PATH          Specify Android strings.xml file path
-    -c, --context PATH          Specify your context.json file
-    -h, --help                  Show this message
-    -v, --version               Show version
+    -t, --token API_TOKEN            Your POEditor API token
+    -p, --project PROJECT_ID         Your POEditor project identifier
+    -l, --lang LANGUAGE              The POEditor project language code to extract
+    -i, --ios PATH                   Path of the iOS Localizable.strings[dict] file to generate
+    -a, --android PATH               Path of the Android strings.xml file path to generate
+    -c, --context PATH               Path of the *.json file to generate for contexts
+    -r, --replacements FILE          Path to a YAML file listing all replacements
+    -h, --help                       Show this message
+    -v, --version                    Show version
 ```
 
 * You'll typically always need to provide a token (`--token`) and a project ID (`--project`). Those can be found [here on the POEditor web interface](https://poeditor.com/account/api)
@@ -139,3 +140,33 @@ This can be useful:
 
 * Either to use that JSON file directly in your project to do whatever you want with the contexts (e.g. parsing the JSON file at runtime using `JSONSerialization`, and use it as you please)
 * Or use that JSON file with a template engine (like [Liquid](https://github.com/Shopify/liquid)) to generate code specific to your needs. See the example script in `examples/gen-context-with-liquid.rb`.
+
+## Providing text replacements
+
+In case you need replacements to be applied to your translations, you can use the `--replacements` flag (`-r` for short) to provide a YAML file listing all replacements to be applied.
+
+```
+$ poesie --token "..." --project "..." --lang fr --ios .../localizable.strings -r replacements.yaml
+```
+
+This can be useful:
+
+* To replace standard spaces with non-breaking spaces before punctuation characters
+* To replace "..." with "…" and similar
+* To replace smiley strings like ";-)" with actual emoji characters like 😉
+* To ensure proper capitalization and orthography of your brand name every time it's spelled in the translations
+* etc.
+
+The YAML file provided must be of the form of a single Hash of String pairs, for example:
+
+```yaml
+" :": "\u00A0:"
+" ;": "\u00A0;"
+" !": "\u00A0!"
+" ?": "\u00A0?"
+"...": "…"
+```
+
+_Note: given that the JSON format is a subset of the YAML format, using a JSON file is also possible, as long as it still represents a dictionary with Strings as keys and as values._
+
+You can find an example of a YAML file in `examples/replacements.yaml` in this repository.
