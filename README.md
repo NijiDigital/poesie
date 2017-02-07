@@ -23,7 +23,8 @@ Even though POEditor's web interface allows you to export the strings in those f
   * Sorting the terms **alphabetically**
   * **Filtering** out terms ending with `_ios` when exporting for Android, and filtering out terms ending with `_android` when exporting for iOS
   * **Normalize the string placeholder** so you can use `%s` everywhere in your POEditor strings in the web interface — the script will automatically replace `%s` and `%n$s` with `%@` and `%n$@` when exporting to iOS, so no need to have different translations for those for each platform
-* Allows you to extract the context strings in a JSON file if you want to use them for whatever use case in your app
+  * Allowing you to provide **text substitutions**, like replacing `"..."` with `"…"` and similar for all your translations (useful when your translator isn't always consistent with those typographical rules for example)
+* Allows you to extract the **context strings** in a JSON file if you want to use them for whatever use case in your app
 
 
 ## Installation
