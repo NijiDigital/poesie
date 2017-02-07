@@ -1,3 +1,3 @@
-module POEditor
+module Poesie
   VERSION = '1.0.1'
 end

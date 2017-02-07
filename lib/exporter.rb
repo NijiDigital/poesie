@@ -1,6 +1,6 @@
 require 'net/http'
 
-module POEditor
+module Poesie
   class Exporter
     # @param [String] api_token
     #        POEditor API Token

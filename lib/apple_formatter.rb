@@ -1,6 +1,6 @@
 require 'builder'
 
-module POEditor
+module Poesie
   module AppleFormatter
 
     # Write the Localizable.strings output file

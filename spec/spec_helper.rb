@@ -1,4 +1,4 @@
-require 'poeditor'
+require 'poesie'
 require 'tmpdir'
 
 def fixture(name)

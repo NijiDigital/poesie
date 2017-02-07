@@ -1,0 +1,93 @@
+#!/usr/bin/env ruby
+
+if RUBY_VERSION < '2.0.0'
+  abort 'error: poesie requires Ruby 2 or higher.'
+end
+
+if $0 == __FILE__
+  $:.unshift File.expand_path('../lib', File.dirname(__FILE__))
+end
+
+begin
+  require 'optparse'
+  require 'poesie'
+rescue LoadError => e
+  abort 'error: missing some dependencies for poesie. Be sure to install it using `gem install` or to run `bundle installl` to install dependencies - ' + e.message
+end
+
+options = {
+    :api_token => 'fc1881292605d21bc5531c6ffcf3e410',
+    :project_id => nil,
+    :lang => nil,
+    :localizable_strings => nil,
+    :strings_xml => nil,
+    :context_file => nil
+}
+
+opts = OptionParser.new do |opts|
+  opts.banner = 'Usage: poesie [options]'
+  opts.on('-t API_TOKEN', '--token API_TOKEN', %q(Your POEditor API token)) do |api_token|
+    options[:api_token] = api_token
+  end
+  opts.on('-p PROJECT_ID', '--project PROJECT_ID', %q(Your POEditor project identifier)) do |project_id|
+    options[:project_id] = project_id
+  end
+  opts.on('-l LANGUAGE', '--lang LANGUAGE', %q(The POEditor project language code to extract)) do |lang|
+    options[:lang] = lang
+  end
+  opts.on('-i PATH', '--ios PATH', %q(Path of the iOS Localizable.strings[dict] file to generate)) do |path|
+    options[:localizable_strings] = path
+  end
+  opts.on('-a PATH', '--android PATH', %q(Path of the Android strings.xml file path to generate)) do |path|
+    options[:strings_xml] = path
+  end
+  opts.on('-c PATH', '--context PATH', %q(Path of the *.json file to generate for contexts)) do |path|
+    options[:context_file] = path
+  end
+  opts.on_tail('-h', '--help', %q(Show this message)) { puts opts; exit 1 }
+  opts.on_tail('-v', '--version', 'Show version') { puts Poesie::VERSION; exit }
+end
+
+begin
+  opts.parse!
+rescue OptionParser::InvalidOption => error
+  puts error
+  puts opts
+  exit 1
+end
+
+### Main ###
+
+Poesie.exit_with_error('You need to specify your POEditor project identifier using --project option (see --help for more info)') if options[:project_id].nil?
+exporter = Poesie::Exporter.new(options[:api_token], options[:project_id])
+Poesie.exit_with_error('You need to specify your POEditor project language using --lang option (see --help for more info)') if options[:lang].nil?
+
+# iOS
+unless options[:localizable_strings].nil?
+  Log::title('== iOS ==')
+  exporter.run(options[:lang]) do |terms|
+    # Localizable.strings
+    Log::subtitle("== Language #{options[:lang]} ==")
+    Poesie::AppleFormatter::write_strings_file(terms, options[:localizable_strings])
+
+    # Localizable.stringsdict
+    strings_dict_path = options[:localizable_strings].gsub(/\.strings$/,'.stringsdict')
+    Poesie::AppleFormatter::write_stringsdict_file(terms, strings_dict_path)
+
+    # Context.json (if specified)
+    if options[:context_file]
+      Log::subtitle("== Context #{options[:context_file]} ==")
+      Poesie::AppleFormatter::write_context_json(terms, options[:context_file])
+    end
+  end
+end
+
+# Android
+unless options[:strings_xml].nil?
+  Log::title('== Android ==')
+  exporter.run(langs) do |terms|
+    # Strings.xml
+    Log::subtitle("== Language #{options[:lang]} ==")
+    Poesie::AndroidFormatter::write_strings_xml(terms, options[:strings_xml])
+  end
+end

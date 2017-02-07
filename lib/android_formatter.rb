@@ -1,6 +1,6 @@
 require 'builder'
 
-module POEditor
+module Poesie
   module AndroidFormatter
 
     # Write the strings.xml output file

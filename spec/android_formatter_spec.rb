@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe POEditor::AndroidFormatter do
+describe Poesie::AndroidFormatter do
 	before do
 		Log::quiet = true
 	end
@@ -13,7 +13,7 @@ describe POEditor::AndroidFormatter do
 		Dir.mktmpdir do |dir|
 			path = dir + '/Localizable.strings'
 			stub_time()
-			POEditor::AndroidFormatter::write_strings_xml(terms, path)
+			Poesie::AndroidFormatter::write_strings_xml(terms, path)
 			expect(File.exist?(path)).to eq(true)
 			expect(File.read(path)).to eq(fixture('strings.xml'))
 		end

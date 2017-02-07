@@ -1,4 +1,6 @@
-# POEditor
+# Poesie
+
+Poesie is the **POE**ditor **S**tring **I**nternationalization **E**xtractor.
 
 This repository contains a script to generate `iOS`' and `Android`'s localized strings files extracted from a [poeditor.com](https://poeditor.com) project:
 
@@ -25,10 +27,10 @@ Even though POEditor's web interface allows you to export the strings in those f
 
 * `git clone` the project on you computer
 * Install `bundler` using `gem install bundler` if you don't have it already
-* Install `poeditor`'s dependencies by running `bundle install` from the directory where you cloned the repository
-* Invoke the tool using its full path `<path/where/you/cloned/POEditor>/bin/poeditor`.
+* Install `poesie`'s dependencies by running `bundle install` from the directory where you cloned the repository
+* Invoke the tool using its full path `<path/where/you/cloned/Poesie>/bin/poesie`.
 
-You could also add the `<path/where/you/cloned/POEditor>/bin/` path to your `PATH` environment variable if you prefer.
+You could also add the `<path/where/you/cloned/Poesie>/bin/` path to your `PATH` environment variable if you prefer.
 
 </details>
 
@@ -36,9 +38,9 @@ You could also add the `<path/where/you/cloned/POEditor>/bin/` path to your `PAT
 <summary>Solution 2: Build and install it as a gem</summary>
 
 * `git clone` the project on you computer
-* Run `gem build poeditor.gemspec` to build the gem
-* Run `gem install poeditor-*.gem` to install the gem you just built (`*` will be the version of the gem)
-* Now that it's installed in your system, you can invoke the tool using `poeditor` from anywhere
+* Run `gem build poesie.gemspec` to build the gem
+* Run `gem install poesie-*.gem` to install the gem you just built (`*` will be the version of the gem)
+* Now that it's installed in your system, you can invoke the tool using `poesie` from anywhere
 
 </details>
 
@@ -94,8 +96,8 @@ Therefore, and given how the script interprets those terms, for terms with plura
 Multiple options can be used when invoking the tool from the commandline:
 
 ```
-$ poeditor -h
-Usage: poeditor [options]
+$ poesie -h
+Usage: poesie [options]
     -t, --token API_TOKEN       Specify your POEditor API token
     -p, --project PROJECT_ID    Specify your POEditor project identifier
     -l, --lang LANGUAGE         Specify your POEditor project language
@@ -108,27 +110,27 @@ Usage: poeditor [options]
 
 * You'll typically always need to provide a token (`--token`) and a project ID (`--project`). Those can be found [here on the POEditor web interface](https://poeditor.com/account/api)
 
-* You'll also always need to provide the language (`--lang`) you wish to extract and for which you want to generate the files. You can invoke the `poeditor` script multiple times, one for each language you need to extract, if needed.
+* You'll also always need to provide the language (`--lang`) you wish to extract and for which you want to generate the files. You can invoke the `poesie` script multiple times, one for each language you need to extract, if needed.
 
 * Depending if you want to generate the localization files for Android (`strings.xml`) or iOS (`Localizable.strings` & `Localizable.stringsdict`), you'll use either `--ios PATH` or `--android PATH`. _(Note: for iOS, you give the path and name of the `Localizable.strings` file to generate, and the script will deduce itself the path for the `Localizable.stringsdict` to generate next to it)_
 
 **Exemples** :
 
 ```
-$ poeditor -t abcd1234efab5678abcd1234efab5678 -p 12345 -l fr -a /Users/me/Documents/Dev/MyApp/app/src/main/res/values/strings.xml
+$ poesie -t abcd1234efab5678abcd1234efab5678 -p 12345 -l fr -a /Users/me/Documents/Dev/MyApp/app/src/main/res/values/strings.xml
 ```
 
 ```
-$ poeditor -t abcd1234efab5678abcd1234efab5678 -p 12345 -l fr -i /Users/me/Documents/Dev/MyApp/Resources/Localizable.strings
+$ poesie -t abcd1234efab5678abcd1234efab5678 -p 12345 -l fr -i /Users/me/Documents/Dev/MyApp/Resources/Localizable.strings
 ```
 
 
 ## Using the --context flag
 
-When running the `poeditor` script using the `--context FILE` option, it will generate a JSON file at the provided path, containing all the terms for which you provided a "Context" (the "C" round button) in the POEditor web interface.
+When running the `poesie` script using the `--context FILE` option, it will generate a JSON file at the provided path, containing all the terms for which you provided a "Context" (the "C" round button) in the POEditor web interface.
 
 ```
-$ poeditor --token "..." --project "..." --lang fr --ios .../localizable.strings --context .../context.json
+$ poesie --token "..." --project "..." --lang fr --ios .../localizable.strings --context .../context.json
 ```
 
 This can be useful:

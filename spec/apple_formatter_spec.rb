@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe POEditor::AppleFormatter do
+describe Poesie::AppleFormatter do
 	before do
 		Log::quiet = true
 	end
@@ -13,7 +13,7 @@ describe POEditor::AppleFormatter do
 		Dir.mktmpdir do |dir|
 			path = dir + '/Localizable.strings'
 			stub_time()
-			POEditor::AppleFormatter::write_strings_file(terms, path)
+			Poesie::AppleFormatter::write_strings_file(terms, path)
 			expect(File.exist?(path)).to eq(true)
 			expect(File.read(path)).to eq(fixture('Localizable.strings'))
 		end
@@ -22,7 +22,7 @@ describe POEditor::AppleFormatter do
 	it "generates proper stringsdict file" do
 		Dir.mktmpdir do |dir|
 			path = dir + '/Localizable.stringsdict'
-			POEditor::AppleFormatter::write_stringsdict_file(terms, path)
+			Poesie::AppleFormatter::write_stringsdict_file(terms, path)
 			expect(File.exist?(path)).to eq(true)
 			expect(File.read(path)).to eq(fixture('Localizable.stringsdict'))
 		end
@@ -32,7 +32,7 @@ describe POEditor::AppleFormatter do
 		Dir.mktmpdir do |dir|
 			path = dir + '/Context.json'
 			stub_time()
-			POEditor::AppleFormatter::write_context_json(terms, path)
+			Poesie::AppleFormatter::write_context_json(terms, path)
 			expect(File.exist?(path)).to eq(true)
 			expect(File.read(path)).to eq(fixture('Context.json'))
 		end

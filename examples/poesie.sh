@@ -4,9 +4,9 @@
 test -f "$(dirname $0)/paths.sh" && source "$(dirname $0)/paths.sh"
 
 # Set this in your environment variable, for example:
-#POEDITOR_BIN=/Users/me/Documents/Dev/POEditor/POEditor/bin/poeditor
-if [ ! -x "$POEDITOR_BIN" ]; then
-	echo You must define the POEDITOR_BIN variable to the path to the 'poeditor' Niji tool
+#POESIE_BIN=/Users/me/Documents/Dev/Poesie/bin/poesie
+if [ ! -x "$POESIE_BIN" ]; then
+	echo You must define the POESIE_BIN variable to the path to the 'poesie' tool
 	exit 1
 fi
 
@@ -20,4 +20,4 @@ PROJECT_ID=""
 
 
 ### Run the Script ###
-"$POEDITOR_BIN" --token "$API_TOKEN" --project "$PROJECT_ID" --lang fr --ios "$LOCALIZABLE"
+"$POESIE_BIN" --token "$API_TOKEN" --project "$PROJECT_ID" --lang fr --ios "$LOCALIZABLE"
