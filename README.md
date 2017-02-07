@@ -106,6 +106,7 @@ Usage: poesie [options]
     -i, --ios PATH                   Path of the iOS Localizable.strings[dict] file to generate
     -a, --android PATH               Path of the Android strings.xml file path to generate
     -c, --context PATH               Path of the *.json file to generate for contexts
+    -d, --date                       Generate the current date in file headers
     -r, --replacements FILE          Path to a YAML file listing all replacements
     -h, --help                       Show this message
     -v, --version                    Show version
