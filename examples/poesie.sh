@@ -6,8 +6,8 @@ test -f "$(dirname $0)/paths.sh" && source "$(dirname $0)/paths.sh"
 # Set this in your environment variable, for example:
 #POESIE_BIN=/Users/me/Documents/Dev/Poesie/bin/poesie
 if [ ! -x "$POESIE_BIN" ]; then
-	echo You must define the POESIE_BIN variable to the path to the 'poesie' tool
-	exit 1
+  echo You must define the POESIE_BIN variable to the path to the 'poesie' tool
+  exit 1
 fi
 
 

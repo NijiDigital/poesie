@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Exported from POEditor
-    <<<STUBBED_DATE_TIME>>>
-    see https://poeditor.com -->
+<!-- Exported from POEditor    -->
+<!-- see https://poeditor.com  -->
 <resources>
     <!-- context1 -->
     <string name="singular1">"Texte singulier"</string>

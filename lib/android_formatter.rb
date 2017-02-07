@@ -11,14 +11,18 @@ module Poesie
     #        The path to the file to write the content to
     # @param [Hash<String,String>] replacements
     #        The list of replacements to apply to the translations
+    # @param [Bool] print_date
+    #        Should we print the date in the header of the generated file
     #
-    def self.write_strings_xml(terms, file, replacements = nil)
+    def self.write_strings_xml(terms, file, replacements: nil, print_date: false)
       Log::info(" - Save to file: #{file}")
       fh = File.open(file, "w")
       begin
         xml_builder = Builder::XmlMarkup.new(:target => fh, :indent => 4)
         xml_builder.instruct!
-        xml_builder.comment!("Exported from POEditor\n    #{Time.now}\n    see https://poeditor.com")
+        xml_builder.comment!("Exported from POEditor   ")
+        xml_builder.comment!(Time.now) if print_date
+        xml_builder.comment!("see https://poeditor.com ")
         xml_builder.resources do |resources_node|
           terms.each do |term|
             (term, definition, plurals, comment, context) = ['term', 'definition', 'term_plural', 'comment', 'context'].map { |k| term[k] }

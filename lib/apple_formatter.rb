@@ -11,9 +11,13 @@ module Poesie
     #        The path of the file to write
     # @param [Hash<String,String>] replacements
     #        The list of replacements to apply to the translations
+    # @param [Bool] print_date
+    #        Should we print the date in the header of the generated file
     #
-    def self.write_strings_file(terms, file, replacements = nil)
-      out_lines = ['/'+'*'*79, ' * Exported from POEditor - https://poeditor.com', " * #{Time.now}", ' '+'*'*79+'/', '']
+    def self.write_strings_file(terms, file, replacements: nil, print_date: false)
+      out_lines = ['/'+'*'*79, ' * Exported from POEditor - https://poeditor.com']
+      out_lines << " * #{Time.now}" if print_date
+      out_lines += [' '+'*'*79+'/', '']
       last_prefix = ''
       stats = { :android => 0, :nil => 0, :count => 0 }
 
@@ -65,8 +69,10 @@ module Poesie
     #        The path of the file to write
     # @param [Hash<String,String>] replacements
     #        The list of replacements to apply to the translations
+    # @param [Bool] print_date
+    #        Should we print the date in the header of the generated file
     #
-    def self.write_stringsdict_file(terms, file, replacements = nil)
+    def self.write_stringsdict_file(terms, file, replacements: nil, print_date: false)
       stats = { :android => 0, :nil => 0, :count => 0 }
 
       Log::info(" - Save to file: #{file}")
@@ -74,6 +80,9 @@ module Poesie
       begin
         xml_builder = Builder::XmlMarkup.new(:target => fh, :indent => 4)
         xml_builder.instruct!
+        xml_builder.comment!("Exported from POEditor   ")
+        xml_builder.comment!(Time.now) if print_date
+        xml_builder.comment!("see https://poeditor.com ")
         xml_builder.plist(:version => '1.0') do |plist_node|
           plist_node.dict do |root_node|
             terms.each do |term|

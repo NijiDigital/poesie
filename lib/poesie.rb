@@ -20,11 +20,11 @@ module Poesie
   #        The replacements to apply
   #
   def self.process(text, replacements)
-  	return text if replacements.nil?
-  	replaced = text.dup
-  	replacements.each do |k,v|
-  		replaced.gsub!(k, v)
-  	end
-  	replaced
+    return text if replacements.nil?
+    replaced = text.dup
+    replacements.each do |k,v|
+      replaced.gsub!(k, v)
+    end
+    replaced
   end
 end
