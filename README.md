@@ -20,11 +20,27 @@ Even though POEditor's web interface allows you to export the strings in those f
 
 ## Installation
 
-This project is written in Ruby.
+<details>
+<summary>Solution 1: Clone the repo</summary>
 
-Simply clone the project on you computer, then invoke it using its full path `<path/where/you/cloned/POEditor>/bin/poeditor`.
+* `git clone` the project on you computer
+* Install `bundler` using `gem install bundler` if you don't have it already
+* Install `poeditor`'s dependencies by running `bundle install` from the directory where you cloned the repository
+* Invoke the tool using its full path `<path/where/you/cloned/POEditor>/bin/poeditor`.
 
 You could also add the `<path/where/you/cloned/POEditor>/bin/` path to your `PATH` environment variable if you prefer.
+
+</details>
+
+<details>
+<summary>Solution 2: Build and install it as a gem</summary>
+
+* `git clone` the project on you computer
+* Run `gem build poeditor.gemspec` to build the gem
+* Run `gem install poeditor-*.gem` to install the gem you just built (`*` will be the version of the gem)
+* Now that it's installed in your system, you can invoke the tool using `poeditor` from anywhere
+
+</details>
 
 
 ## Using POEditor properly

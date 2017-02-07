@@ -8,8 +8,6 @@ require File.expand_path('apple_formatter', File.dirname(__FILE__))
 require 'json'
 
 module POEditor
-  VERSION = '1.0.0'
-
   def self.exit_with_error(message)
     Log::error message
     exit 1
