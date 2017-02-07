@@ -85,7 +85,7 @@ end
 # Android
 unless options[:strings_xml].nil?
   Log::title('== Android ==')
-  exporter.run(langs) do |terms|
+  exporter.run(options[:lang]) do |terms|
     # Strings.xml
     Log::subtitle("== Language #{options[:lang]} ==")
     Poesie::AndroidFormatter::write_strings_xml(terms, options[:strings_xml])
