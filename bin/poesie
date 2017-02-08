@@ -81,10 +81,10 @@ Poesie.exit_with_error('You need to specify your POEditor project language using
 
 # iOS
 unless options[:localizable_strings].nil?
-  Log::title('== iOS ==')
+  Poesie::Log::title('== iOS ==')
   exporter.run(options[:lang]) do |terms|
     # Localizable.strings
-    Log::subtitle("== Language #{options[:lang]} ==")
+    Poesie::Log::subtitle("== Language #{options[:lang]} ==")
     Poesie::AppleFormatter::write_strings_file(
       terms,
       options[:localizable_strings],
@@ -103,7 +103,7 @@ unless options[:localizable_strings].nil?
 
     # Context.json (if specified)
     if options[:context_file]
-      Log::subtitle("== Context #{options[:context_file]} ==")
+      Poesie::Log::subtitle("== Context #{options[:context_file]} ==")
       Poesie::AppleFormatter::write_context_json(terms, options[:context_file])
     end
   end
@@ -111,10 +111,10 @@ end
 
 # Android
 unless options[:strings_xml].nil?
-  Log::title('== Android ==')
+  Poesie::Log::title('== Android ==')
   exporter.run(options[:lang]) do |terms|
     # Strings.xml
-    Log::subtitle("== Language #{options[:lang]} ==")
+    Poesie::Log::subtitle("== Language #{options[:lang]} ==")
     Poesie::AndroidFormatter::write_strings_xml(
       terms,
       options[:strings_xml],
