@@ -41,16 +41,15 @@ module Poesie
     # @return [String] URL of the exported file ready to be downloaded
     #
     def generate_export_uri(lang)
-      uri = URI('https://poeditor.com/api/')
-      res = Net::HTTP.post_form(uri, 'api_token' => @api_token, 'action' => 'export', 'id' => @project_id, 'type' => 'json', 'language' => lang)
+      uri = URI('https://api.poeditor.com/v2/projects/export')
+      res = Net::HTTP.post_form(uri, 'api_token' => @api_token, 'id' => @project_id, 'type' => 'json', 'language' => lang)
       json = JSON.parse(res.body)
-      if json['response']['status'] != 'success'
+      unless json['response']['status'] == 'success'
         r = json['response']
         puts "Error #{r['code']} (#{r['status']})\n#{r['message']}"
         exit 1
-      else
-        json['item']
       end
+      json['result']['url']
     end
   end
 end
