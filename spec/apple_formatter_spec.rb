@@ -33,7 +33,7 @@ describe Poesie::AppleFormatter do
     it "generates proper strings file with substitutions" do
       Dir.mktmpdir do |dir|
         path = dir + '/Localizable.strings'
-        repl = { "o" => "0", "avez" => "possédez", "/^\s+/" => "", "/\s+$/" => "" }
+        repl = [{ "avez" => "possédez" }, { "o" => "0" }, { "/^\s+/" => "", "/\s+$/" => "" }]
         Poesie::AppleFormatter::write_strings_file(terms, path, substitutions: repl)
         expect(File.exist?(path)).to eq(true)
         expect(File.read(path)).to eq(fixture('Localizable-replaced.strings'))
@@ -64,7 +64,7 @@ describe Poesie::AppleFormatter do
     it "generates proper stringsdict filewith substitutions" do
       Dir.mktmpdir do |dir|
         path = dir + '/Localizable.stringsdict'
-        repl = { "o" => "0", "avez" => "possédez", "/^\s+/" => "", "/\s+$/" => "" }
+        repl = [{ "avez" => "possédez" }, { "o" => "0" }, { "/^\s+/" => "", "/\s+$/" => "" }]
         Poesie::AppleFormatter::write_stringsdict_file(terms, path, substitutions: repl)
         expect(File.exist?(path)).to eq(true)
         expect(File.read(path)).to eq(fixture('Localizable-replaced.stringsdict'))

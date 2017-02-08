@@ -5,11 +5,11 @@
 // CONTEXT: context1
 "singular1" = "Texte singulier";
 // CONTEXT: plural1ctx
-"plural1" = "V0us possédez un seul plural1 0bjet";
+"plural1" = "V0us p0ssédez un seul plural1 0bjet";
 // CONTEXT: plural2ctx
-"plural2" = "V0us possédez\nun seul\n0bjet \"plural2\"";
+"plural2" = "V0us p0ssédez\nun seul\n0bjet \"plural2\"";
 // CONTEXT: This is some context
 "context1" = "Texte p0ur terme avec c0ntexte";
 "singular2" = "C'est plus <c0mpliqué> avec des accents & des ap0str0phes\nainsi que des chevr0ns et des sauts de ligne";
 "plural3" = "C'est plus <c0mpliqué> avec un accent & une ap0str0phe\nainsi que des chevr0ns et un saut de ligne";
-"plural4" = "V0us possédez\nun seul\nplural4";
+"plural4" = "V0us p0ssédez\nun seul\nplural4";

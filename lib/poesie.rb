@@ -22,10 +22,14 @@ module Poesie
   def self.process(text, substitutions)
     return text if substitutions.nil?
     replaced = text.dup
-    substitutions.each do |k,v|
-      # If the key is surrounding by slashes, interpret as a RegExp
-      k = Regexp.new($1) if k =~ %r(^/(.*)/$)
-      replaced.gsub!(k, v)
+    list = substitutions
+    list = [substitutions] if substitutions.is_a?(Hash)
+    list.each do |hash|
+      hash.each do |k,v|
+        # If the key is surrounding by slashes, interpret as a RegExp
+        k = Regexp.new($1) if k =~ %r(^/(.*)/$)
+        replaced.gsub!(k, v)
+      end
     end
     replaced
   end

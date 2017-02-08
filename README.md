@@ -172,20 +172,51 @@ This can be useful:
 * To ensure proper capitalization and orthography of your brand name every time it's spelled in the translations
 * etc.
 
-The YAML file provided must be of the form of a single Hash of String pairs. If a key is surrounded with slashes, it will be interpreted as a regular expression.
+The YAML file provided must be of the form of a single Hash of String pairs, or an Array listing Hashes of String pairs.
+
+* Substitutions will be performed in the given order if listed in an Array.
+* Order of substitutions isn't guaranteed if they are listed in a Hash. That's why it's sometimes preferable to use an Array of key/value pairs rather than a Hash (because an Array is ordered)
+* If a key is surrounded with slashes, it will be interpreted as a regular expression.
 
 **Example:**
 
 ```yaml
-" :": "\u00A0:"
-" ;": "\u00A0;"
-" !": "\u00A0!"
-" ?": "\u00A0?"
-"...": "…"
-/^\s+/: ""
-/\s+$/: ""
+- " :": "\u00A0:"
+  " ;": "\u00A0;"
+  " !": "\u00A0!"
+  " ?": "\u00A0?"
+- "...": "…"
+- /^\s+/: ""
+  /\s+$/: ""
 ```
 
-_Note: given that the JSON format is a subset of the YAML format, using a JSON file is also possible, as long as it still represents a dictionary with Strings as keys and as values._
+In this example:
+
+* The first substitutions to be applied will be the 4 first ones about the `:;!?` punctuation. The order of the substitutions between those 4 is undetermined (as Hashes are unordered).
+* Then the substitution of `...` to `…` will be applied
+* The last two substitutions are interpreted as Regular Expressions, trimming the beginning and end of each text. They will be applied last (but those two will be applied in any order w/r/t each other).
+
+<details>
+<summary>_Note: given that the JSON format is a subset of the YAML format, using a JSON file to represent the same substitutions is also possible._</summary>
+
+```json
+[
+  {
+    " :": " :",
+    " ;": " ;",
+    " !": " !",
+    " ?": " ?"
+  },
+  {
+    "...": "…"
+  },
+  {
+    "/^\\s+/": "",
+    "/\\s+$/": ""
+  }
+]
+```
+
+</details>
 
 You can find an example of a YAML file in `examples/substitutions.yaml` in this repository.
