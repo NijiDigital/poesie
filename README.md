@@ -172,7 +172,9 @@ This can be useful:
 * To ensure proper capitalization and orthography of your brand name every time it's spelled in the translations
 * etc.
 
-The YAML file provided must be of the form of a single Hash of String pairs, for example:
+The YAML file provided must be of the form of a single Hash of String pairs. If a key is surrounded with slashes, it will be interpreted as a regular expression.
+
+**Example:**
 
 ```yaml
 " :": "\u00A0:"
