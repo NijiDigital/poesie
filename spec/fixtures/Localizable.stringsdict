@@ -30,13 +30,13 @@
                 <key>NSStringFormatValueTypeKey</key>
                 <string>d</string>
                 <key>one</key>
-                <string>Vous avez
+                <string>  Vous avez
 un seul
-objet "plural2"</string>
+objet "plural2"  </string>
                 <key>other</key>
-                <string>Vous avez
+                <string>  Vous avez
 %d
-objets "plural2"</string>
+objets "plural2"  </string>
             </dict>
         </dict>
         <key>plural3_plural_term</key>

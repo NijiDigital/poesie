@@ -3,7 +3,7 @@
 <!-- see https://poeditor.com  -->
 <resources>
     <!-- context1 -->
-    <string name="singular1">"Texte singulier"</string>
+    <string name="singular1">"  Texte singulier  "</string>
     <!-- plural1ctx -->
     <plurals name="plural1_plural_term">
         <item quantity="one">"Vous avez un seul plural1 objet"</item>
@@ -11,12 +11,12 @@
     </plurals>
     <!-- plural2ctx -->
     <plurals name="plural2_plural_term">
-        <item quantity="one">"Vous avez
+        <item quantity="one">"  Vous avez
 un seul
-objet \"plural2\""</item>
-        <item quantity="other">"Vous avez
+objet \"plural2\"  "</item>
+        <item quantity="other">"  Vous avez
 %d
-objets \"plural2\""</item>
+objets \"plural2\"  "</item>
     </plurals>
     <!-- This is some context -->
     <string name="context1">"Texte pour terme avec contexte"</string>

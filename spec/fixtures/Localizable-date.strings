@@ -4,11 +4,11 @@
  *******************************************************************************/
 
 // CONTEXT: context1
-"singular1" = "Texte singulier";
+"singular1" = "  Texte singulier  ";
 // CONTEXT: plural1ctx
 "plural1" = "Vous avez un seul plural1 objet";
 // CONTEXT: plural2ctx
-"plural2" = "Vous avez\nun seul\nobjet \"plural2\"";
+"plural2" = "  Vous avez\nun seul\nobjet \"plural2\"  ";
 // CONTEXT: This is some context
 "context1" = "Texte pour terme avec contexte";
 "singular2" = "C'est plus <compliqué> avec des accents & des apostrophes\nainsi que des chevrons et des sauts de ligne";

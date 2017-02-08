@@ -31,7 +31,7 @@ describe Poesie::AndroidFormatter do
   it "generates proper strings.xml file with replacements" do
     Dir.mktmpdir do |dir|
       path = dir + '/strings.xml'
-      repl = { "o" => "0", "avez" => "possédez" }
+      repl = { "o" => "0", "avez" => "possédez", "/^\s+/" => "", "/\s+$/" => "" }
       Poesie::AndroidFormatter::write_strings_xml(terms, path, replacements: repl)
       expect(File.exist?(path)).to eq(true)
       expect(File.read(path)).to eq(fixture('strings-replaced.xml'))

@@ -23,6 +23,8 @@ module Poesie
     return text if replacements.nil?
     replaced = text.dup
     replacements.each do |k,v|
+      # If the key is surrounding by slashes, interpret as a RegExp
+      k = Regexp.new($1) if k =~ %r(^/(.*)/$)
       replaced.gsub!(k, v)
     end
     replaced
