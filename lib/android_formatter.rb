@@ -15,9 +15,10 @@ module Poesie
     #        Should we print the date in the header of the generated file
     #
     def self.write_strings_xml(terms, file, replacements: nil, print_date: false)
+      stats = { :ios => 0, :nil => [], :count => 0 }
+
       Log::info(" - Save to file: #{file}")
-      fh = File.open(file, "w")
-      begin
+      File.open(file, "w") do |fh|
         xml_builder = Builder::XmlMarkup.new(:target => fh, :indent => 4)
         xml_builder.instruct!
         xml_builder.comment!("Exported from POEditor   ")
@@ -26,9 +27,12 @@ module Poesie
         xml_builder.resources do |resources_node|
           terms.each do |term|
             (term, definition, plurals, comment, context) = ['term', 'definition', 'term_plural', 'comment', 'context'].map { |k| term[k] }
-            # Skip ugly cases if POEditor is buggy for some entries
-            next if term.nil? || term.empty? || definition.nil?
-            next if term =~ /_ios$/
+            
+            # Filter terms and update stats
+            next if (term.nil? || term.empty? || definition.nil?) && stats[:nil] << term
+            next if (term =~ /_ios$/) && stats[:ios] += 1
+            stats[:count] += 1
+
             xml_builder.comment!(context) unless context.empty?
             if plurals.empty?
               definition = Poesie::process(definition, replacements).gsub('"', '\\"')
@@ -43,8 +47,12 @@ module Poesie
             end
           end
         end
-      ensure
-        fh.close
+      end
+
+      Log::info("   [Stats] #{stats[:count]} strings processed (Filtered out #{stats[:ios]} iOS strings)")
+      unless stats[:nil].empty?
+        Log::error("   Found #{stats[:nil].count} empty value(s) for the following term(s):")
+        stats[:nil].each { |key| Log::error("    - #{key.inspect}") }
       end
     end
   end

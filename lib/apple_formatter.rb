@@ -19,13 +19,13 @@ module Poesie
       out_lines << " * #{Time.now}" if print_date
       out_lines += [' '+'*'*79+'/', '']
       last_prefix = ''
-      stats = { :android => 0, :nil => 0, :count => 0 }
+      stats = { :android => 0, :nil => [], :count => 0 }
 
       terms.each do |term|
         (term, definition, comment, context) = ['term', 'definition', 'comment', 'context'].map { |k| term[k] }
 
         # Filter terms and update stats
-        next if (term.nil? || term.empty? || definition.nil? || definition.empty?) && stats[:nil] += 1
+        next if (term.nil? || term.empty? || definition.nil? || definition.empty?) && stats[:nil] << term
         next if (term =~ /_android$/) && stats[:android] += 1 # Remove android-specific strings
         stats[:count] += 1
 
@@ -53,11 +53,14 @@ module Poesie
 
       content = out_lines.join("\n") + "\n"
 
-
-      Log::info("   [Stats] #{stats[:count]} strings processed (Filtered out #{stats[:android]} android strings, #{stats[:nil]} nil entries)")
       Log::info(" - Save to file: #{file}")
       File.open(file, "w") do |fh|
         fh.write(content)
+      end
+      Log::info("   [Stats] #{stats[:count]} strings processed (Filtered out #{stats[:android]} android strings)")
+      unless stats[:nil].empty?
+        Log::error("   Found #{stats[:nil].count} empty value(s) for the following term(s):")
+        stats[:nil].each { |key| Log::error("    - #{key.inspect}") }
       end
     end
 
@@ -73,11 +76,10 @@ module Poesie
     #        Should we print the date in the header of the generated file
     #
     def self.write_stringsdict_file(terms, file, replacements: nil, print_date: false)
-      stats = { :android => 0, :nil => 0, :count => 0 }
+      stats = { :android => 0, :nil => [], :count => 0 }
 
       Log::info(" - Save to file: #{file}")
-      fh = File.open(file, "w")
-      begin
+      File.open(file, "w") do |fh|
         xml_builder = Builder::XmlMarkup.new(:target => fh, :indent => 4)
         xml_builder.instruct!
         xml_builder.comment!("Exported from POEditor   ")
@@ -89,14 +91,13 @@ module Poesie
               (term, term_plural, definition) = ['term', 'term_plural', 'definition'].map { |k| term[k] }
 
               # Filter terms and update stats
-              next if (term.nil? || term.empty? || definition.nil?) && stats[:nil] += 1
+              next if (term.nil? || term.empty? || definition.nil?) && stats[:nil] << term
               next if (term =~ /_android$/) && stats[:android] += 1 # Remove android-specific strings
               next unless definition.is_a? Hash
               stats[:count] += 1
               
               key = term_plural || term
 
-              
               root_node.key(key)
               root_node.dict do |dict_node|
                 dict_node.key('NSStringLocalizedFormatKey')
@@ -121,8 +122,11 @@ module Poesie
             end
           end
         end
-      ensure
-        fh.close
+      end
+      Log::info("   [Stats] #{stats[:count]} strings processed (Filtered out #{stats[:android]} android strings)")
+      unless stats[:nil].empty?
+        Log::error("   Found #{stats[:nil].count} empty value(s) for the following term(s):")
+        stats[:nil].each { |key| Log::error("    - #{key.inspect}") }
       end
     end
 
@@ -162,11 +166,11 @@ module Poesie
 
       context_json = JSON.pretty_generate(json_hash)
 
-      Log::info("   [Stats] #{stats[:count]} contexts processed (Filtered out #{stats[:android]} android entries, #{stats[:nil]} nil contexts)")
       Log::info(" - Save to file: #{file}")
       File.open(file, "w") do |fh|
         fh.write(context_json)
       end
+      Log::info("   [Stats] #{stats[:count]} contexts processed (Filtered out #{stats[:android]} android entries, #{stats[:nil]} nil contexts)")
     end
 
   end
