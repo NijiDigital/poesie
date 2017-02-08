@@ -121,7 +121,7 @@ Usage: poesie [options]
     -a, --android PATH               Path of the Android strings.xml file path to generate
     -c, --context PATH               Path of the *.json file to generate for contexts
     -d, --date                       Generate the current date in file headers
-    -r, --replacements FILE          Path to a YAML file listing all replacements
+    -s, --subst FILE                 Path to a YAML file listing all text substitutions
     -h, --help                       Show this message
     -v, --version                    Show version
 ```
@@ -156,12 +156,12 @@ This can be useful:
 * Either to use that JSON file directly in your project to do whatever you want with the contexts (e.g. parsing the JSON file at runtime using `JSONSerialization`, and use it as you please)
 * Or use that JSON file with a template engine (like [Liquid](https://github.com/Shopify/liquid)) to generate code specific to your needs. See the example script in `examples/gen-context-with-liquid.rb`.
 
-## Providing text replacements
+## Providing text substitutions
 
-In case you need replacements to be applied to your translations, you can use the `--replacements` flag (`-r` for short) to provide a YAML file listing all replacements to be applied.
+In case you need replacements to be applied to your translations, you can use the `--subst` flag (`-s` for short) to provide a YAML file listing all substitutions to be applied.
 
 ```
-$ poesie --token "..." --project "..." --lang fr --ios .../localizable.strings -r replacements.yaml
+$ poesie --token "..." --project "..." --lang fr --ios .../localizable.strings -s substitutions.yaml
 ```
 
 This can be useful:
@@ -180,8 +180,10 @@ The YAML file provided must be of the form of a single Hash of String pairs, for
 " !": "\u00A0!"
 " ?": "\u00A0?"
 "...": "…"
+/^\s+/: ""
+/\s+$/: ""
 ```
 
 _Note: given that the JSON format is a subset of the YAML format, using a JSON file is also possible, as long as it still represents a dictionary with Strings as keys and as values._
 
-You can find an example of a YAML file in `examples/replacements.yaml` in this repository.
+You can find an example of a YAML file in `examples/substitutions.yaml` in this repository.
