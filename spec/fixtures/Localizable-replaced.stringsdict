@@ -14,9 +14,9 @@
                 <key>NSStringFormatValueTypeKey</key>
                 <string>d</string>
                 <key>one</key>
-                <string>V0us possédez un seul plural1 0bjet</string>
+                <string>V0us p0ssédez un seul plural1 0bjet</string>
                 <key>other</key>
-                <string>V0us possédez %d plural1 0bjets</string>
+                <string>V0us p0ssédez %d plural1 0bjets</string>
             </dict>
         </dict>
         <key>plural2_plural_term</key>
@@ -30,11 +30,11 @@
                 <key>NSStringFormatValueTypeKey</key>
                 <string>d</string>
                 <key>one</key>
-                <string>V0us possédez
+                <string>V0us p0ssédez
 un seul
 0bjet "plural2"</string>
                 <key>other</key>
-                <string>V0us possédez
+                <string>V0us p0ssédez
 %d
 0bjets "plural2"</string>
             </dict>
@@ -68,11 +68,11 @@ ainsi que des chevr0ns et des sauts de ligne</string>
                 <key>NSStringFormatValueTypeKey</key>
                 <string>d</string>
                 <key>one</key>
-                <string>V0us possédez
+                <string>V0us p0ssédez
 un seul
 plural4</string>
                 <key>other</key>
-                <string>V0us possédez
+                <string>V0us p0ssédez
 %d plural4</string>
             </dict>
         </dict>

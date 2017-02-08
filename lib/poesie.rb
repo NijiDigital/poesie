@@ -12,17 +12,17 @@ module Poesie
     exit 1
   end
 
-  # Apply the list of text replacements to the given string
+  # Apply the list of text substitutions to the given string
   #
   # @param [String] text
   #        The text to process
-  # @param [Hash<String,String>] replacements
-  #        The replacements to apply
+  # @param [Hash<String,String>] substitutions
+  #        The substitutions to apply
   #
-  def self.process(text, replacements)
-    return text if replacements.nil?
+  def self.process(text, substitutions)
+    return text if substitutions.nil?
     replaced = text.dup
-    replacements.each do |k,v|
+    substitutions.each do |k,v|
       # If the key is surrounding by slashes, interpret as a RegExp
       k = Regexp.new($1) if k =~ %r(^/(.*)/$)
       replaced.gsub!(k, v)

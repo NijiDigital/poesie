@@ -24,7 +24,7 @@ options = {
     :strings_xml => nil,
     :context_file => nil,
     :print_date => false,
-    :replacements => nil
+    :substitutions => nil
 }
 
 opts = OptionParser.new do |opts|
@@ -51,15 +51,15 @@ opts = OptionParser.new do |opts|
     options[:print_date] = true
   end
   opts.on('-s FILE', '--subst FILE', %q(Path to a YAML file listing all substitutions)) do |path|
-    Poesie.exit_with_error("The replacements file #{path} was not found") unless File.exists?(path)  
+    Poesie.exit_with_error("The substitutions file #{path} was not found") unless File.exists?(path)  
     begin
       dict = YAML.load_file(path)
     rescue Psych::SyntaxError => e
       Poesie.exit_with_error("Invalid YAML file #{e.message}")  
     end
     valid = dict.keys.all? { |k| k.is_a?(String) } && dict.values.all? { |k| k.is_a?(String) }
-    Poesie.exit_with_error("The provided replacements file #{path} should only contain a Dictionary with String keys and values") unless valid
-    options[:replacements] = dict
+    Poesie.exit_with_error("The provided substitutions file #{path} should only contain a Dictionary with String keys and values") unless valid
+    options[:substitutions] = dict
   end
   opts.on_tail('-h', '--help', %q(Show this message)) { puts opts; exit 1 }
   opts.on_tail('-v', '--version', 'Show version') { puts Poesie::VERSION; exit }
@@ -88,7 +88,7 @@ unless options[:localizable_strings].nil?
     Poesie::AppleFormatter::write_strings_file(
       terms,
       options[:localizable_strings],
-      replacements: options[:replacements],
+      substitutions: options[:substitutions],
       print_date: options[:print_date]
     )
 
@@ -97,7 +97,7 @@ unless options[:localizable_strings].nil?
     Poesie::AppleFormatter::write_stringsdict_file(
       terms,
       strings_dict_path,
-      replacements: options[:replacements],
+      substitutions: options[:substitutions],
       print_date: options[:print_date]
     )
 
@@ -118,7 +118,7 @@ unless options[:strings_xml].nil?
     Poesie::AndroidFormatter::write_strings_xml(
       terms,
       options[:strings_xml],
-      replacements: options[:replacements],
+      substitutions: options[:substitutions],
       print_date: options[:print_date]
     )
   end

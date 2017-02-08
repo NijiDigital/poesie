@@ -158,7 +158,7 @@ This can be useful:
 
 ## Providing text substitutions
 
-In case you need replacements to be applied to your translations, you can use the `--subst` flag (`-s` for short) to provide a YAML file listing all substitutions to be applied.
+In case you need substitutions to be applied to your translations, you can use the `--subst` flag (`-s` for short) to provide a YAML file listing all substitutions to be applied.
 
 ```
 $ poesie --token "..." --project "..." --lang fr --ios .../localizable.strings -s substitutions.yaml
