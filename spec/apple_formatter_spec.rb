@@ -72,15 +72,4 @@ describe Poesie::AppleFormatter do
     end
   end
 
-  describe "Context.json" do
-    it "generates proper context json file" do
-      Dir.mktmpdir do |dir|
-        path = dir + '/Context.json'
-        stub_time()
-        Poesie::AppleFormatter::write_context_json(terms, path)
-        expect(File.exist?(path)).to eq(true)
-        expect(File.read(path)).to eq(fixture('Context.json'))
-      end
-    end
-  end
 end
