@@ -95,7 +95,7 @@ module Poesie
               next if (term =~ /_android$/) && stats[:android] += 1 # Remove android-specific strings
               next unless definition.is_a? Hash
               stats[:count] += 1
-              
+
               key = term_plural || term
 
               root_node.key(key)
@@ -130,49 +130,5 @@ module Poesie
         stats[:nil].each { |key| Log::error("    - #{key.inspect}") }
       end
     end
-
-    # Write the JSON output file containing all context keys
-    #
-    # @param [Array<Hash<String, Any>>] terms
-    #        JSON returned by the POEditor API
-    # @param [String] file
-    #        The path of the file to write
-    #
-    def self.write_context_json(terms, file)
-      json_hash = { "date" => "#{Time.now}" }
-
-      stats = { :android => 0, :nil => 0, :count => 0 }
-
-      #switch on term / context
-      array_context = Array.new
-      terms.each do |term|
-        (term, definition, comment, context) = ['term', 'definition', 'comment', 'context'].map { |k| term[k] }
-
-        # Filter terms and update stats
-        next if (term.nil? || term.empty? || context.nil? || context.empty?) && stats[:nil] += 1
-        next if (term =~ /_android$/) && stats[:android] += 1 # Remove android-specific strings
-        stats[:count] += 1
-
-        # Escape some chars
-        context = context
-                    .gsub("\u2028", '') # Sometimes inserted by the POEditor exporter
-                    .gsub("\\", "\\\\\\") # Replace actual \ with \\
-                    .gsub('\\\\"', '\\"') # Replace actual \\" with \"
-                    .gsub(/%(\d+\$)?s/, '%\1@') # replace %s with %@ for iOS
-
-        array_context << { "term" => "#{term}", "context" => "#{context}" }
-      end
-
-      json_hash[:"contexts"] = array_context
-
-      context_json = JSON.pretty_generate(json_hash)
-
-      Log::info(" - Save to file: #{file}")
-      File.open(file, "w") do |fh|
-        fh.write(context_json)
-      end
-      Log::info("   [Stats] #{stats[:count]} contexts processed (Filtered out #{stats[:android]} android entries, #{stats[:nil]} nil contexts)")
-    end
-
   end
 end
