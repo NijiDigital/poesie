@@ -81,12 +81,14 @@ Poesie.exit_with_error('You need to specify your POEditor project identifier usi
 exporter = Poesie::Exporter.new(options[:api_token], options[:project_id])
 Poesie.exit_with_error('You need to specify your POEditor project language using --lang option (see --help for more info)') if options[:lang].nil?
 
-# iOS
-unless options[:localizable_strings].nil?
-  Poesie::Log::title('== iOS ==')
-  exporter.run(options[:lang]) do |terms|
+exporter.run(options[:lang]) do |terms|
+  Poesie::Log::title("== Language #{options[:lang]} ==")
+
+  # iOS
+  unless options[:localizable_strings].nil?
+    Poesie::Log::subtitle('== iOS ==')
+
     # Localizable.strings
-    Poesie::Log::subtitle("== Language #{options[:lang]} ==")
     Poesie::AppleFormatter::write_strings_file(
       terms,
       options[:localizable_strings],
@@ -102,32 +104,27 @@ unless options[:localizable_strings].nil?
       substitutions: options[:substitutions],
       print_date: options[:print_date]
     )
-
-    # Context.json (if specified)
-    if options[:context_file]
-      Poesie::Log::subtitle("== Context #{options[:context_file]} ==")
-      Poesie::ContextFormatter::write_context_json(terms, options[:context_file], exclude: Poesie::Filters::EXCLUDE_ANDROID)
-    end
   end
-end
 
-# Android
-unless options[:strings_xml].nil?
-  Poesie::Log::title('== Android ==')
-  exporter.run(options[:lang]) do |terms|
+  # Android
+  unless options[:strings_xml].nil?
+    Poesie::Log::subtitle('== Android ==')
+
     # Strings.xml
-    Poesie::Log::subtitle("== Language #{options[:lang]} ==")
     Poesie::AndroidFormatter::write_strings_xml(
       terms,
       options[:strings_xml],
       substitutions: options[:substitutions],
       print_date: options[:print_date]
     )
+  end
 
-    # Context.json (if specified)
-    if options[:context_file]
-      Poesie::Log::subtitle("== Context #{options[:context_file]} ==")
-      Poesie::ContextFormatter::write_context_json(terms, options[:context_file], exclude: Poesie::Filters::EXCLUDE_IOS)
-    end
+  # Context.json (if specified)
+  if options[:context_file]
+    filters = nil
+    filters = Poesie::Filters::EXCLUDE_IOS if options[:localizable_strings].nil?
+    filters = Poesie::Filters::EXCLUDE_ANDROID if options[:android].nil?
+    Poesie::Log::subtitle("== Context ==")
+    Poesie::ContextFormatter::write_context_json(terms, options[:context_file], exclude: filters)
   end
 end
