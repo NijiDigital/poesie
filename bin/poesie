@@ -123,7 +123,7 @@ exporter.run(options[:lang]) do |terms|
   if options[:context_file]
     filters = nil
     filters = Poesie::Filters::EXCLUDE_IOS if options[:localizable_strings].nil?
-    filters = Poesie::Filters::EXCLUDE_ANDROID if options[:android].nil?
+    filters = Poesie::Filters::EXCLUDE_ANDROID if options[:strings_xml].nil?
     Poesie::Log::subtitle("== Context ==")
     Poesie::ContextFormatter::write_context_json(terms, options[:context_file], exclude: filters)
   end
