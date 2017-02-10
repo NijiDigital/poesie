@@ -26,7 +26,7 @@ module Poesie
 
         # Filter terms and update stats
         next if (term.nil? || term.empty? || definition.nil? || definition.empty?) && stats[:nil] << term
-        next if (term =~ /_android$/) && stats[:android] += 1 # Remove android-specific strings
+        next if (term =~ Poesie::Filters::EXCLUDE_ANDROID) && stats[:android] += 1 # Remove android-specific strings
         stats[:count] += 1
 
         # Generate MARK from prefixes
@@ -92,7 +92,7 @@ module Poesie
 
               # Filter terms and update stats
               next if (term.nil? || term.empty? || definition.nil?) && stats[:nil] << term
-              next if (term =~ /_android$/) && stats[:android] += 1 # Remove android-specific strings
+              next if (term =~ Poesie::Filters::EXCLUDE_ANDROID) && stats[:android] += 1 # Remove android-specific strings
               next unless definition.is_a? Hash
               stats[:count] += 1
 

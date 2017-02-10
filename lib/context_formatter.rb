@@ -7,12 +7,15 @@ module Poesie
     #        JSON returned by the POEditor API
     # @param [String] file
     #        The path of the file to write
+    # @param [Regexp] exclude
+    #        A regular expression to filter out terms.
+    #        Terms matching this Regexp will be ignored and won't be part of the generated file
     #
-    def self.write_context_json(terms, file, currentOS)
+    def self.write_context_json(terms, file, exclude: nil)
 
       json_hash = { "date" => "#{Time.now}" }
 
-      stats = { :filteredOS => 0, :nil => 0, :count => 0 }
+      stats = { :filtered => 0, :nil => 0, :count => 0 }
 
       #switch on term / context
       array_context = Array.new
@@ -21,11 +24,7 @@ module Poesie
 
         # Filter terms and update stats
         next if (term.nil? || term.empty? || context.nil? || context.empty?) && stats[:nil] += 1
-        if currentOS == CurrentOS::ANDROID
-          next if (term =~ /_ios$/) && stats[:filteredOS] += 1 # Remove android-specific strings
-        elsif currentOS == CurrentOS::IOS
-          next if (term =~ /_android$/) && stats[:filteredOS] += 1 # Remove android-specific strings
-        end
+        next if (term =~ exclude) && stats[:filtered] += 1 # Remove android-specific strings
 
         stats[:count] += 1
 
@@ -47,11 +46,7 @@ module Poesie
       File.open(file, "w") do |fh|
         fh.write(context_json)
       end
-      if currentOS == CurrentOS::ANDROID
-        Log::info("   [Stats] #{stats[:count]} contexts processed (Filtered out #{stats[:filteredOS]} ios entries, #{stats[:nil]} nil contexts)")
-      elsif CurrentOS == CurrentOS::IOS
-        Log::info("   [Stats] #{stats[:count]} contexts processed (Filtered out #{stats[:filteredOS]} android entries, #{stats[:nil]} nil contexts)")
-      end
+      Log::info("   [Stats] #{stats[:count]} contexts processed (Filtered out #{stats[:filtered]} entries, #{stats[:nil]} nil contexts)")
     end
   end
 end

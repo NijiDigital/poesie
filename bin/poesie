@@ -17,12 +17,6 @@ rescue LoadError => e
   abort 'error: missing some dependencies for poesie. Be sure to install it using `gem install` or to run `bundle installl` to install dependencies - ' + e.message
 end
 
-module CurrentOS
-  UNKNOW = 0
-  ANDROID = 1
-  IOS = 2
-end
-
 options = {
     :api_token => 'fc1881292605d21bc5531c6ffcf3e410',
     :project_id => nil,
@@ -112,7 +106,7 @@ unless options[:localizable_strings].nil?
     # Context.json (if specified)
     if options[:context_file]
       Poesie::Log::subtitle("== Context #{options[:context_file]} ==")
-      Poesie::ContextFormatter::write_context_json(terms, options[:context_file], CurrentOS::IOS)
+      Poesie::ContextFormatter::write_context_json(terms, options[:context_file], exclude: Poesie::Filters::EXCLUDE_ANDROID)
     end
   end
 end
@@ -133,7 +127,7 @@ unless options[:strings_xml].nil?
     # Context.json (if specified)
     if options[:context_file]
       Poesie::Log::subtitle("== Context #{options[:context_file]} ==")
-      Poesie::ContextFormatter::write_context_json(terms, options[:context_file], CurrentOS::ANDROID)
+      Poesie::ContextFormatter::write_context_json(terms, options[:context_file], exclude: Poesie::Filters::EXCLUDE_IOS)
     end
   end
 end

@@ -15,7 +15,7 @@ module Poesie
     #        Should we print the date in the header of the generated file
     #
     def self.write_strings_xml(terms, file, substitutions: nil, print_date: false)
-      stats = { :ios => 0, :nil => [], :count => 0 }
+      stats = { :filtered => 0, :nil => [], :count => 0 }
 
       Log::info(" - Save to file: #{file}")
       File.open(file, "w") do |fh|
@@ -30,7 +30,7 @@ module Poesie
             
             # Filter terms and update stats
             next if (term.nil? || term.empty? || definition.nil?) && stats[:nil] << term
-            next if (term =~ /_ios$/) && stats[:ios] += 1
+            next if (term =~ Poesie::Filters::EXCLUDE_IOS) && stats[:ios] += 1
             stats[:count] += 1
 
             # Terms with dots are invalid in Android ("R.string.foo.bar" won't work), so replace dots with underscores
