@@ -61,7 +61,7 @@ describe Poesie::AppleFormatter do
       end
     end
 
-    it "generates proper stringsdict filewith substitutions" do
+    it "generates proper stringsdict file with substitutions" do
       Dir.mktmpdir do |dir|
         path = dir + '/Localizable.stringsdict'
         repl = [{ "avez" => "possédez" }, { "o" => "0" }, { "/^\s+/" => "", "/\s+$/" => "" }]
