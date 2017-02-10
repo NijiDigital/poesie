@@ -2,10 +2,10 @@
  * Exported from POEditor - https://poeditor.com
  *******************************************************************************/
 
-// CONTEXT: context1
-"singular1" = "Texte singulier";
-// CONTEXT: plural1ctx
-"plural1" = "V0us p0ssédez un seul plural1 0bjet";
+// CONTEXT: context.1
+"singular.1" = "Texte singulier";
+// CONTEXT: plural.1.ctx
+"plural.1" = "V0us p0ssédez un seul plural1 0bjet";
 // CONTEXT: plural2ctx
 "plural2" = "V0us p0ssédez\nun seul\n0bjet \"plural2\"";
 // CONTEXT: This is some context

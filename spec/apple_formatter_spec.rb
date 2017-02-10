@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Poesie::AppleFormatter do
   before do
-    Log::quiet = true
+    Poesie::Log::quiet = true
   end
 
   let(:terms) do

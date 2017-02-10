@@ -2,12 +2,12 @@
   "date": "<<<STUBBED_DATE_TIME>>>",
   "contexts": [
     {
-      "term": "singular1",
-      "context": "context1"
+      "term": "singular.1",
+      "context": "context.1"
     },
     {
-      "term": "plural1",
-      "context": "plural1ctx"
+      "term": "plural.1",
+      "context": "plural.1.ctx"
     },
     {
       "term": "plural2",

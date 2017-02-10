@@ -2,10 +2,10 @@
 <!-- Exported from POEditor    -->
 <!-- see https://poeditor.com  -->
 <resources>
-    <!-- context1 -->
-    <string name="singular1">"Texte singulier"</string>
-    <!-- plural1ctx -->
-    <plurals name="plural1_plural_term">
+    <!-- context.1 -->
+    <string name="singular_1">"Texte singulier"</string>
+    <!-- plural.1.ctx -->
+    <plurals name="plural_1_plural_term">
         <item quantity="one">"V0us p0ssédez un seul plural1 0bjet"</item>
         <item quantity="other">"V0us p0ssédez %d plural1 0bjets"</item>
     </plurals>

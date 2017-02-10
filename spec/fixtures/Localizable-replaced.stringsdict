@@ -3,7 +3,7 @@
 <!-- see https://poeditor.com  -->
 <plist version="1.0">
     <dict>
-        <key>plural1_plural_term</key>
+        <key>plural.1.plural.term</key>
         <dict>
             <key>NSStringLocalizedFormatKey</key>
             <string>%#@format@</string>

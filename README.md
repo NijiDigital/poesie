@@ -77,7 +77,8 @@ Of course, only list in POEditor the strings that needs a translation (user-faci
 ### Naming your terms
 
 * Find a name for your term that is consistent with existing keys
-* As a convention, for Niji projects, we structure the name of terms in a reverse-dns hierarchical text, using `_` as a separator. For example `home_banner_text` and `home_weather_temperature` (use `_` and not `.` because `.` causes issues in Android)
+* As a convention, for Niji projects, we structure the name of terms in a reverse-dns hierarchical text, using `_` as a separator. For example `home_banner_text` and `home_weather_temperature`.
+* For Android, if you have `.` in term names, they will be replaced with `_` (as `R.string.foo.bar` won't work in Android but `R.string.foo_bar` will)
 * If a key should only be exported for Android, use the `_android` suffix. If a key should only be exported for iOS, use the `_ios` suffix.
 
 ### Using `%…` placeholders

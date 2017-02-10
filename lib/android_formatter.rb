@@ -33,6 +33,10 @@ module Poesie
             next if (term =~ /_ios$/) && stats[:ios] += 1
             stats[:count] += 1
 
+            # Terms with dots are invalid in Android ("R.string.foo.bar" won't work), so replace dots with underscores
+            term.gsub!('.', '_')
+            plurals.gsub!('.', '_')
+
             xml_builder.comment!(context) unless context.empty?
             if plurals.empty?
               definition = Poesie::process(definition, substitutions).gsub('"', '\\"')
