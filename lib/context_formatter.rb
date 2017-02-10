@@ -48,7 +48,7 @@ module Poesie
       end
       Log::info("   [Stats] #{stats[:count]} strings processed")
       unless exclude.nil?
-        Log::info("   Filtered out #{stats[:excluded]} strings matching #{exclude})")
+        Log::info("   Filtered out #{stats[:excluded]} strings matching #{exclude.inspect})")
       end
     end
   end

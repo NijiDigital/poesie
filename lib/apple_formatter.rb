@@ -62,7 +62,7 @@ module Poesie
       end
       Log::info("   [Stats] #{stats[:count]} strings processed")
       unless exclude.nil?
-        Log::info("   Filtered out #{stats[:excluded]} strings matching #{exclude})")
+        Log::info("   Filtered out #{stats[:excluded]} strings matching #{exclude.inspect})")
       end
       unless stats[:nil].empty?
         Log::error("   Found #{stats[:nil].count} empty value(s) for the following term(s):")
@@ -136,7 +136,7 @@ module Poesie
 
       Log::info("   [Stats] #{stats[:count]} strings processed")
       unless exclude.nil?
-        Log::info("   Filtered out #{stats[:excluded]} strings matching #{exclude})")
+        Log::info("   Filtered out #{stats[:excluded]} strings matching #{exclude.inspect})")
       end
       unless stats[:nil].empty?
         Log::error("   Found #{stats[:nil].count} empty value(s) for the following term(s):")
