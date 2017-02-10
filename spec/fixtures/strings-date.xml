@@ -33,4 +33,11 @@ ainsi que des chevrons et des sauts de ligne"</item>
         <item quantity="one">"Vous avez\nun seul\nplural4"</item>
         <item quantity="other">"Vous avez\n%d plural4"</item>
     </plurals>
+    <!-- context.android -->
+    <string name="singular_android">"Texte pour Android uniquement"</string>
+    <!-- plural.android.ctx -->
+    <plurals name="plural_android_plural_term">
+        <item quantity="one">"Texte singulier pour Android"</item>
+        <item quantity="other">"Texte pluriel pour Android"</item>
+    </plurals>
 </resources>

@@ -16,22 +16,6 @@
     {
       "term": "context1",
       "context": "This is some context"
-    },
-    {
-      "term": "singular_ios",
-      "context": "context.ios"
-    },
-    {
-      "term": "plural_ios",
-      "context": "plural.ios.ctx"
-    },
-    {
-      "term": "singular_android",
-      "context": "context.android"
-    },
-    {
-      "term": "plural_android",
-      "context": "plural.android.ctx"
     }
   ]
 }

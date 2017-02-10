@@ -1,7 +1,9 @@
 require File.expand_path('log', File.dirname(__FILE__))
 require File.expand_path('exporter', File.dirname(__FILE__))
+require File.expand_path('filters', File.dirname(__FILE__))
 require File.expand_path('android_formatter', File.dirname(__FILE__))
 require File.expand_path('apple_formatter', File.dirname(__FILE__))
+require File.expand_path('context_formatter', File.dirname(__FILE__))
 
 require 'json'
 

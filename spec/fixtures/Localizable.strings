@@ -13,3 +13,13 @@
 "singular2" = "C'est plus <compliqué> avec des accents & des apostrophes\nainsi que des chevrons et des sauts de ligne";
 "plural3" = "C'est plus <compliqué> avec un accent & une apostrophe\nainsi que des chevrons et un saut de ligne";
 "plural4" = "Vous avez\nun seul\nplural4";
+
+////////////////////////////////////////////////////////////////////////////////
+// MARK: Singular
+// CONTEXT: context.ios
+"singular_ios" = "Texte pour iOS uniquement";
+
+////////////////////////////////////////////////////////////////////////////////
+// MARK: Plural
+// CONTEXT: plural.ios.ctx
+"plural_ios" = "Texte singulier pour iOS";
