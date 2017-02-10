@@ -10,11 +10,11 @@
       "context": "plural.1.ctx"
     },
     {
-      "term": "plural2",
+      "term": "plural.2",
       "context": "plural2ctx"
     },
     {
-      "term": "context1",
+      "term": "context.1",
       "context": "This is some context"
     },
     {

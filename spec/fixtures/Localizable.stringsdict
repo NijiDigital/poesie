@@ -19,7 +19,7 @@
                 <string>Vous avez %d plural1 objets</string>
             </dict>
         </dict>
-        <key>plural2_plural_term</key>
+        <key>plural.2.plural.term</key>
         <dict>
             <key>NSStringLocalizedFormatKey</key>
             <string>%#@format@</string>
@@ -39,7 +39,7 @@ objet "plural2"  </string>
 objets "plural2"  </string>
             </dict>
         </dict>
-        <key>plural3_plural_term</key>
+        <key>plural.3.plural.term</key>
         <dict>
             <key>NSStringLocalizedFormatKey</key>
             <string>%#@format@</string>
@@ -57,7 +57,7 @@ ainsi que des chevrons et un saut de ligne</string>
 ainsi que des chevrons et des sauts de ligne</string>
             </dict>
         </dict>
-        <key>plural4_plural_term</key>
+        <key>plural.4.plural.term</key>
         <dict>
             <key>NSStringLocalizedFormatKey</key>
             <string>%#@format@</string>

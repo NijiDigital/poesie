@@ -11,7 +11,7 @@
         <item quantity="other">"Vous avez %d plural1 objets"</item>
     </plurals>
     <!-- plural2ctx -->
-    <plurals name="plural2_plural_term">
+    <plurals name="plural_2_plural_term">
         <item quantity="one">"  Vous avez
 un seul
 objet \"plural2\"  "</item>
@@ -20,16 +20,16 @@ objet \"plural2\"  "</item>
 objets \"plural2\"  "</item>
     </plurals>
     <!-- This is some context -->
-    <string name="context1">"Texte pour terme avec contexte"</string>
-    <string name="singular2">"C'est plus &lt;compliqué&gt; avec des accents &amp; des apostrophes
+    <string name="context_1">"Texte pour terme avec contexte"</string>
+    <string name="singular_2">"C'est plus &lt;compliqué&gt; avec des accents &amp; des apostrophes
 ainsi que des chevrons et des sauts de ligne"</string>
-    <plurals name="plural3_plural_term">
+    <plurals name="plural_3_plural_term">
         <item quantity="one">"C'est plus &lt;compliqué&gt; avec un accent &amp; une apostrophe
 ainsi que des chevrons et un saut de ligne"</item>
         <item quantity="other">"C'est plus &lt;compliqué&gt; avec %d accents &amp; %d apostrophes
 ainsi que des chevrons et des sauts de ligne"</item>
     </plurals>
-    <plurals name="plural4_plural_term">
+    <plurals name="plural_4_plural_term">
         <item quantity="one">"Vous avez\nun seul\nplural4"</item>
         <item quantity="other">"Vous avez\n%d plural4"</item>
     </plurals>

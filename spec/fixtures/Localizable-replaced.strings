@@ -7,12 +7,12 @@
 // CONTEXT: plural.1.ctx
 "plural.1" = "V0us p0ssédez un seul plural1 0bjet";
 // CONTEXT: plural2ctx
-"plural2" = "V0us p0ssédez\nun seul\n0bjet \"plural2\"";
+"plural.2" = "V0us p0ssédez\nun seul\n0bjet \"plural2\"";
 // CONTEXT: This is some context
-"context1" = "Texte p0ur terme avec c0ntexte";
-"singular2" = "C'est plus <c0mpliqué> avec des accents & des ap0str0phes\nainsi que des chevr0ns et des sauts de ligne";
-"plural3" = "C'est plus <c0mpliqué> avec un accent & une ap0str0phe\nainsi que des chevr0ns et un saut de ligne";
-"plural4" = "V0us p0ssédez\nun seul\nplural4";
+"context.1" = "Texte p0ur terme avec c0ntexte";
+"singular.2" = "C'est plus <c0mpliqué> avec des accents & des ap0str0phes\nainsi que des chevr0ns et des sauts de ligne";
+"plural.3" = "C'est plus <c0mpliqué> avec un accent & une ap0str0phe\nainsi que des chevr0ns et un saut de ligne";
+"plural.4" = "V0us p0ssédez\nun seul\nplural4";
 
 ////////////////////////////////////////////////////////////////////////////////
 // MARK: Singular

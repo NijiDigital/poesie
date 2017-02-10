@@ -10,7 +10,7 @@
         <item quantity="other">"V0us p0ssédez %d plural1 0bjets"</item>
     </plurals>
     <!-- plural2ctx -->
-    <plurals name="plural2_plural_term">
+    <plurals name="plural_2_plural_term">
         <item quantity="one">"V0us p0ssédez
 un seul
 0bjet \"plural2\""</item>
@@ -19,16 +19,16 @@ un seul
 0bjets \"plural2\""</item>
     </plurals>
     <!-- This is some context -->
-    <string name="context1">"Texte p0ur terme avec c0ntexte"</string>
-    <string name="singular2">"C'est plus &lt;c0mpliqué&gt; avec des accents &amp; des ap0str0phes
+    <string name="context_1">"Texte p0ur terme avec c0ntexte"</string>
+    <string name="singular_2">"C'est plus &lt;c0mpliqué&gt; avec des accents &amp; des ap0str0phes
 ainsi que des chevr0ns et des sauts de ligne"</string>
-    <plurals name="plural3_plural_term">
+    <plurals name="plural_3_plural_term">
         <item quantity="one">"C'est plus &lt;c0mpliqué&gt; avec un accent &amp; une ap0str0phe
 ainsi que des chevr0ns et un saut de ligne"</item>
         <item quantity="other">"C'est plus &lt;c0mpliqué&gt; avec %d accents &amp; %d ap0str0phes
 ainsi que des chevr0ns et des sauts de ligne"</item>
     </plurals>
-    <plurals name="plural4_plural_term">
+    <plurals name="plural_4_plural_term">
         <item quantity="one">"V0us p0ssédez\nun seul\nplural4"</item>
         <item quantity="other">"V0us p0ssédez\n%d plural4"</item>
     </plurals>
