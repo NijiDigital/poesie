@@ -13,20 +13,23 @@ module Poesie
     #        The list of substitutions to apply to the translations
     # @param [Bool] print_date
     #        Should we print the date in the header of the generated file
+    # @param [Regexp] exclude
+    #        A regular expression to filter out terms.
+    #        Terms matching this Regexp will be ignored and won't be part of the generated file
     #
-    def self.write_strings_file(terms, file, substitutions: nil, print_date: false)
+    def self.write_strings_file(terms, file, substitutions: nil, print_date: false, exclude: Poesie::Filters::EXCLUDE_ANDROID)
       out_lines = ['/'+'*'*79, ' * Exported from POEditor - https://poeditor.com']
       out_lines << " * #{Time.now}" if print_date
       out_lines += [' '+'*'*79+'/', '']
       last_prefix = ''
-      stats = { :android => 0, :nil => [], :count => 0 }
+      stats = { :excluded => 0, :nil => [], :count => 0 }
 
       terms.each do |term|
         (term, definition, comment, context) = ['term', 'definition', 'comment', 'context'].map { |k| term[k] }
 
         # Filter terms and update stats
         next if (term.nil? || term.empty? || definition.nil? || definition.empty?) && stats[:nil] << term
-        next if (term =~ Poesie::Filters::EXCLUDE_ANDROID) && stats[:android] += 1 # Remove android-specific strings
+        next if (term =~ exclude) && stats[:excluded] += 1
         stats[:count] += 1
 
         # Generate MARK from prefixes
@@ -57,7 +60,10 @@ module Poesie
       File.open(file, "w") do |fh|
         fh.write(content)
       end
-      Log::info("   [Stats] #{stats[:count]} strings processed (Filtered out #{stats[:android]} android strings)")
+      Log::info("   [Stats] #{stats[:count]} strings processed")
+      unless exclude.nil?
+        Log::info("   Filtered out #{stats[:excluded]} strings matching #{exclude})")
+      end
       unless stats[:nil].empty?
         Log::error("   Found #{stats[:nil].count} empty value(s) for the following term(s):")
         stats[:nil].each { |key| Log::error("    - #{key.inspect}") }
@@ -74,9 +80,12 @@ module Poesie
     #        The list of substitutions to apply to the translations
     # @param [Bool] print_date
     #        Should we print the date in the header of the generated file
+    # @param [Regexp] exclude
+    #        A regular expression to filter out terms.
+    #        Terms matching this Regexp will be ignored and won't be part of the generated file
     #
-    def self.write_stringsdict_file(terms, file, substitutions: nil, print_date: false)
-      stats = { :android => 0, :nil => [], :count => 0 }
+    def self.write_stringsdict_file(terms, file, substitutions: nil, print_date: false, exclude: Poesie::Filters::EXCLUDE_ANDROID)
+      stats = { :excluded => 0, :nil => [], :count => 0 }
 
       Log::info(" - Save to file: #{file}")
       File.open(file, "w") do |fh|
@@ -92,7 +101,7 @@ module Poesie
 
               # Filter terms and update stats
               next if (term.nil? || term.empty? || definition.nil?) && stats[:nil] << term
-              next if (term =~ Poesie::Filters::EXCLUDE_ANDROID) && stats[:android] += 1 # Remove android-specific strings
+              next if (term =~ exclude) && stats[:excluded] += 1
               next unless definition.is_a? Hash
               stats[:count] += 1
 
@@ -124,7 +133,11 @@ module Poesie
           end
         end
       end
-      Log::info("   [Stats] #{stats[:count]} strings processed (Filtered out #{stats[:android]} android strings)")
+
+      Log::info("   [Stats] #{stats[:count]} strings processed")
+      unless exclude.nil?
+        Log::info("   Filtered out #{stats[:excluded]} strings matching #{exclude})")
+      end
       unless stats[:nil].empty?
         Log::error("   Found #{stats[:nil].count} empty value(s) for the following term(s):")
         stats[:nil].each { |key| Log::error("    - #{key.inspect}") }

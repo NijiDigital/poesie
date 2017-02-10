@@ -15,7 +15,7 @@ module Poesie
 
       json_hash = { "date" => "#{Time.now}" }
 
-      stats = { :filtered => 0, :nil => 0, :count => 0 }
+      stats = { :excluded => 0, :nil => 0, :count => 0 }
 
       #switch on term / context
       array_context = Array.new
@@ -24,7 +24,7 @@ module Poesie
 
         # Filter terms and update stats
         next if (term.nil? || term.empty? || context.nil? || context.empty?) && stats[:nil] += 1
-        next if (term =~ exclude) && stats[:filtered] += 1 # Remove android-specific strings
+        next if (term =~ exclude) && stats[:excluded] += 1 # Remove android-specific strings
 
         stats[:count] += 1
 
@@ -46,7 +46,10 @@ module Poesie
       File.open(file, "w") do |fh|
         fh.write(context_json)
       end
-      Log::info("   [Stats] #{stats[:count]} contexts processed (Filtered out #{stats[:filtered]} entries, #{stats[:nil]} nil contexts)")
+      Log::info("   [Stats] #{stats[:count]} strings processed")
+      unless exclude.nil?
+        Log::info("   Filtered out #{stats[:excluded]} strings matching #{exclude})")
+      end
     end
   end
 end

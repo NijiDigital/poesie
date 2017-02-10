@@ -19,5 +19,15 @@ describe Poesie::ContextFormatter do
         expect(File.read(path)).to eq(fixture('Context.json'))
       end
     end
+
+    it "generates proper context json file, filtering keys" do
+      Dir.mktmpdir do |dir|
+        path = dir + '/Context.json'
+        stub_time()
+        Poesie::ContextFormatter::write_context_json(terms, path, exclude: /_(ios|android)$/)
+        expect(File.exist?(path)).to eq(true)
+        expect(File.read(path)).to eq(fixture('Context-filtered.json'))
+      end
+    end
   end
 end

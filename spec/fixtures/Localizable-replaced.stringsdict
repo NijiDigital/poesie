@@ -76,5 +76,21 @@ plural4</string>
 %d plural4</string>
             </dict>
         </dict>
+        <key>plural.ios.plural.term</key>
+        <dict>
+            <key>NSStringLocalizedFormatKey</key>
+            <string>%#@format@</string>
+            <key>format</key>
+            <dict>
+                <key>NSStringFormatSpecTypeKey</key>
+                <string>NSStringPluralRuleType</string>
+                <key>NSStringFormatValueTypeKey</key>
+                <string>d</string>
+                <key>one</key>
+                <string>Texte singulier p0ur iOS</string>
+                <key>other</key>
+                <string>Texte pluriel p0ur iOS</string>
+            </dict>
+        </dict>
     </dict>
 </plist>
