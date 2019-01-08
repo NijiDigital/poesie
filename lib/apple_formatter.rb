@@ -42,7 +42,7 @@ module Poesie
 
         # If plural, use the text for the "one" (singular) entry
         if definition.is_a? Hash
-          definition = definition["one"]
+          definition = definition.values[0]
         end
 
         definition = Poesie::process(definition, substitutions)
