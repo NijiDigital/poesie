@@ -40,9 +40,9 @@ module Poesie
           out_lines += ['', '/'*80, "// MARK: #{mark}"]
         end
 
-        # If plural, use the text for the "one" (singular) entry
+        # If definition is a hash, use the text for "one" if available (singular in languages using plurals), otherwise the first entry
         if definition.is_a? Hash
-          definition = definition.values[0]
+          definition = definition["one"] || definition.values.first
         end
 
         definition = Poesie::process(definition, substitutions)
