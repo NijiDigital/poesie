@@ -23,3 +23,8 @@
 // MARK: Plural
 // CONTEXT: plural.ios.ctx
 "plural_ios" = "Texte singulier pour iOS";
+
+////////////////////////////////////////////////////////////////////////////////
+// MARK: Chinese
+// CONTEXT: chinese.ios.ctx
+"chinese_ios" = "%d中文文本";
