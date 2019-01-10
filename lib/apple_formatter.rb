@@ -40,7 +40,8 @@ module Poesie
           out_lines += ['', '/'*80, "// MARK: #{mark}"]
         end
 
-        # If definition is a hash, use the text for "one" if available (singular in languages using plurals), otherwise the first entry
+        # If definition is a Hash, use the text for "one" if available (singular in languages using plurals)
+        # otherwise (e.g. asian language where only key in hash will be "other", not "one"), then use the first entry
         if definition.is_a? Hash
           definition = definition["one"] || definition.values.first
         end
