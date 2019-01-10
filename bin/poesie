@@ -18,7 +18,7 @@ rescue LoadError => e
 end
 
 options = {
-    :api_token => 'fc1881292605d21bc5531c6ffcf3e410',
+    :api_token => nil,
     :project_id => nil,
     :lang => nil,
     :localizable_strings => nil,
