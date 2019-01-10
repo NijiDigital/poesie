@@ -32,6 +32,10 @@
     {
       "term": "plural_android",
       "context": "plural.android.ctx"
+    },
+    {
+      "term": "chinese_ios",
+      "context": "chinese.ios.ctx"
     }
   ]
 }

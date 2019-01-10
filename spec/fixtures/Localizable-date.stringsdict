@@ -93,5 +93,19 @@ plural4</string>
                 <string>Texte pluriel pour iOS</string>
             </dict>
         </dict>
+        <key>plural.chinese_ios.plural.term</key>
+        <dict>
+            <key>NSStringLocalizedFormatKey</key>
+            <string>%#@format@</string>
+            <key>format</key>
+            <dict>
+                <key>NSStringFormatSpecTypeKey</key>
+                <string>NSStringPluralRuleType</string>
+                <key>NSStringFormatValueTypeKey</key>
+                <string>d</string>
+                <key>other</key>
+                <string>%d中文文本</string>
+            </dict>
+        </dict>
     </dict>
 </plist>
