@@ -25,7 +25,8 @@ options = {
     :strings_xml => nil,
     :context_file => nil,
     :print_date => false,
-    :substitutions => nil
+    :substitutions => nil,
+    :tags => nil
 }
 
 opts = OptionParser.new do |opts|
@@ -63,6 +64,9 @@ opts = OptionParser.new do |opts|
     Poesie.exit_with_error("The provided substitutions file #{path} should only contain a (Array of) Hashes with String keys and values") unless valid
     options[:substitutions] = subst
   end
+  opts.on('-g TAGS', '--tags TAGS', %q(Comma separated list of tags used to filter exported terms)) do |tags|
+    options[:tags] = tags
+  end
   opts.on_tail('-h', '--help', %q(Show this message)) { puts opts; exit 1 }
   opts.on_tail('-v', '--version', 'Show version') { puts Poesie::VERSION; exit }
 end
@@ -81,7 +85,7 @@ Poesie.exit_with_error('You need to specify your POEditor project identifier usi
 exporter = Poesie::Exporter.new(options[:api_token], options[:project_id])
 Poesie.exit_with_error('You need to specify your POEditor project language using --lang option (see --help for more info)') if options[:lang].nil?
 
-exporter.run(options[:lang]) do |terms|
+exporter.run(options[:lang], options[:tags]) do |terms|
   Poesie::Log::title("== Language #{options[:lang]} ==")
 
   # iOS
