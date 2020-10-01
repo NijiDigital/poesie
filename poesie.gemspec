@@ -15,6 +15,5 @@ Gem::Specification.new do |s|
   s.executables << 'poesie'
 
   s.add_dependency 'net', '~> 0.3'
-  s.add_dependency 'activesupport', '~>4.2'
   s.add_dependency 'builder', '~> 3.0'
 end
