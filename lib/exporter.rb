@@ -1,4 +1,5 @@
 require 'net/http'
+require 'pp'
 
 module Poesie
   class Exporter
@@ -21,9 +22,9 @@ module Poesie
     #        The action to do with the exported terms
     #        Typically call one of AppleFormatter::… or AndroidFormatter::… methods here
     #
-    def run(lang)
+    def run(lang, tags)
         Log::info(' - Generating export...')
-        uri = generate_export_uri(lang)
+        uri = generate_export_uri(lang, tags)
         Log::info(' - Downloading exported file...')
         json_string = Net::HTTP.get(URI(uri))
         json = JSON.parse(json_string)
@@ -40,9 +41,10 @@ module Poesie
     #        Language code, like 'fr', 'en', etc
     # @return [String] URL of the exported file ready to be downloaded
     #
-    def generate_export_uri(lang)
+    def generate_export_uri(lang, tags)
       uri = URI('https://api.poeditor.com/v2/projects/export')
-      res = Net::HTTP.post_form(uri, 'api_token' => @api_token, 'id' => @project_id, 'type' => 'json', 'language' => lang)
+      tags_safe = tags.nil? ? [] : tags.split(',')
+      res = Net::HTTP.post_form(uri, 'api_token' => @api_token, 'id' => @project_id, 'type' => 'json', 'language' => lang, 'tags' => tags_safe)
       json = JSON.parse(res.body)
       unless json['response']['status'] == 'success'
         r = json['response']

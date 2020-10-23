@@ -123,6 +123,7 @@ Usage: poesie [options]
     -c, --context PATH               Path of the *.json file to generate for contexts
     -d, --date                       Generate the current date in file headers
     -s, --subst FILE                 Path to a YAML file listing all text substitutions
+    -g, --tags TAGS                  Comma separated list of tags used to filter extracted terms
     -h, --help                       Show this message
     -v, --version                    Show version
 ```
