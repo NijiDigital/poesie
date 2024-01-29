@@ -52,7 +52,7 @@ opts = OptionParser.new do |opts|
     options[:print_date] = true
   end
   opts.on('-s FILE', '--subst FILE', %q(Path to a YAML file listing all substitutions)) do |path|
-    Poesie.exit_with_error("The substitutions file #{path} was not found") unless File.exists?(path)
+    Poesie.exit_with_error("The substitutions file #{path} was not found") unless File.exist?(path)
     begin
       subst = YAML.load_file(path)
     rescue Psych::SyntaxError => e
