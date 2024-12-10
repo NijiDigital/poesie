@@ -63,6 +63,9 @@ opts = OptionParser.new do |opts|
     Poesie.exit_with_error("The provided substitutions file #{path} should only contain a (Array of) Hashes with String keys and values") unless valid
     options[:substitutions] = subst
   end
+  opts.on('-u', '--unsorted', %q(Disable alphabetical sorting of exported terms)) do
+    options[:unsorted] = true
+  end
   opts.on_tail('-h', '--help', %q(Show this message)) { puts opts; exit 1 }
   opts.on_tail('-v', '--version', 'Show version') { puts Poesie::VERSION; exit }
 end
@@ -81,7 +84,7 @@ Poesie.exit_with_error('You need to specify your POEditor project identifier usi
 exporter = Poesie::Exporter.new(options[:api_token], options[:project_id])
 Poesie.exit_with_error('You need to specify your POEditor project language using --lang option (see --help for more info)') if options[:lang].nil?
 
-exporter.run(options[:lang]) do |terms|
+exporter.run(options[:lang], sort_terms: !options[:unsorted]) do |terms|
   Poesie::Log::title("== Language #{options[:lang]} ==")
 
   # iOS

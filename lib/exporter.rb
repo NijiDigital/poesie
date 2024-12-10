@@ -21,13 +21,13 @@ module Poesie
     #        The action to do with the exported terms
     #        Typically call one of AppleFormatter::… or AndroidFormatter::… methods here
     #
-    def run(lang)
+    def run(lang, sort_terms: true)
         Log::info(' - Generating export...')
         uri = generate_export_uri(lang)
         Log::info(' - Downloading exported file...')
         json_string = Net::HTTP.get(URI(uri))
         json = JSON.parse(json_string)
-        terms = json.sort { |item1, item2| item1['term'] <=> item2['term'] }
+        terms = sort_terms ? json.sort { |item1, item2| item1['term'] <=> item2['term'] } : json
         if block_given?
           Log::info(' - Processing generated strings...')
           yield terms
